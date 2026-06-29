@@ -134,49 +134,69 @@ canvas.addEventListener("mouseleave", () => {
 // --- Step 3: Flood fill algorithm ---
 
 function floodFill(row, col, newColor) {
-  // TODO: Get the targetColor from grid[row][col]
-  // TODO: If targetColor equals newColor, return early (nothing to fill)
-  // TODO: Create a stack array with [[row, col]]
-  // TODO: While the stack is not empty:
-  //   1. Pop [r, c] from the stack
-  //   2. Skip if out of bounds
-  //   3. Skip if grid[r][c] !== targetColor
-  //   4. Set grid[r][c] to newColor
-  //   5. Push all 4 neighbors: [r-1,c], [r+1,c], [r,c-1], [r,c+1]
-  // TODO: Call render()
+  const targetColor = grid[row][col];
+  if (targetColor === newColor) return;
+
+  const stack = [[row, col]];
+
+  while (stack.length > 0) {
+    const [r, c] = stack.pop();
+
+    if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) continue;
+    if (grid[r][c] !== targetColor) continue;
+
+    grid[r][c] = newColor;
+
+    stack.push([r - 1, c]);
+    stack.push([r + 1, c]);
+    stack.push([r, c - 1]);
+    stack.push([r, c + 1]);
+  }
+
+  render();
 }
 
 // --- Step 4-a: Build the color palette ---
 
 function buildPalette() {
-  // TODO: Get the palette element by id "color-palette"
-  // TODO: Loop through PRESET_COLORS and for each color:
-  //   1. Create a div element
-  //   2. Add the "color-swatch" class
-  //   3. If this color matches currentColor, also add the "active" class
-  //   4. Set its backgroundColor to the color
-  //   5. Add a click handler that:
-  //      - Sets currentColor to this color
-  //      - Syncs the custom color picker value
-  //      - Removes "active" from all swatches
-  //      - Adds "active" to this swatch
-  //   6. Append the swatch to the palette
+  const palette = document.getElementById("color-palette");
+  PRESET_COLORS.forEach((color) => {
+    const swatch = document.createElement("div");
+    swatch.classList.add("color-swatch");
+
+    if (color === currentColor) swatch.classList.add("active");
+
+    swatch.style.backgroundColor = color;
+
+    swatch.addEventListener("click", () => {
+      currentColor = color;
+      document.getElementById("custom-color").value = color;
+      document
+        .querySelectorAll(".color-swatch")
+        .forEach((s) => s.classList.remove("active"));
+      swatch.classList.add("active");
+    });
+    palette.appendChild(swatch);
+  });
 }
 
-// --- Step 4-b: Custom color picker ---
+document.getElementById("custom-color").addEventListener("input", (e) => {
+  currentColor = e.target.value;
+  document
+    .querySelectorAll(".color-swatch")
+    .forEach((s) => s.classList.remove("active"));
+});
 
-// TODO: Add an "input" event listener to the "custom-color" element
-// When it changes:
-//   - Set currentColor to e.target.value
-//   - Remove "active" class from all color swatches
 
-// --- Step 4-c: Tool button switching ---
-
-// TODO: Select all ".tool-btn" elements and add click handlers
-// When a tool button is clicked:
-//   - Set currentTool to btn.dataset.tool
-//   - Remove "active" from all tool buttons
-//   - Add "active" to the clicked button
+document.querySelectorAll(".tool-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentTool = btn.dataset.tool;
+    document
+      .querySelectorAll(".tool-btn")
+      .forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
 
 buildPalette();
 
