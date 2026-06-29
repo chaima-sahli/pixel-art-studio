@@ -72,44 +72,63 @@ function render() {
 // --- Step 2-a: Map mouse position to grid cell ---
 
 function getCellFromMouse(e) {
-  // TODO: Use canvas.getBoundingClientRect() to get the canvas position
-  // TODO: Calculate x and y relative to the canvas
-  // TODO: Convert to col and row using Math.floor(x / cellSize) and Math.floor(y / cellSize)
-  // TODO: Return { row, col } if within bounds, otherwise return null
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const col = Math.floor(x / cellSize);
+  const row = Math.floor(y / cellSize);
+
+  if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+    return { row, col };
+  }
+  return null;
 }
+
 
 // --- Step 2-b: Paint a single cell ---
 
 function paintCell(row, col) {
-  // TODO: If currentTool is "pen", set grid[row][col] to currentColor
-  // TODO: If currentTool is "eraser", set grid[row][col] to "#ffffff"
-  // TODO: Call render()
+  if (currentTool === "pen") {
+    grid[row][col] = currentColor;
+  } else if (currentTool === "eraser") {
+    grid[row][col] = "#ffffff";
+  }
+  render();
 }
 
 // --- Step 2-c: Mouse event handlers ---
 
 canvas.addEventListener("mousedown", (e) => {
-  // TODO: Set isDrawing to true
-  // TODO: Get the cell from getCellFromMouse(e)
-  // TODO: If cell exists:
-  //   - If currentTool is "fill", call floodFill(cell.row, cell.col, currentColor)
-  //   - Otherwise, call paintCell(cell.row, cell.col)
+  isDrawing = true;
+  const cell = getCellFromMouse(e);
+  if (cell) {
+    if (currentTool === "fill") {
+      floodFill(cell.row, cell.col, currentColor);
+    } else {
+      paintCell(cell.row, cell.col);
+    }
+  }
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  // TODO: Get the cell and set hoveredCell
-  // TODO: If isDrawing AND currentTool is not "fill" AND cell exists, call paintCell
-  // TODO: Otherwise, call render() to update the hover preview
+  const cell = getCellFromMouse(e);
+  hoveredCell = cell;
+
+  if (isDrawing && currentTool !== "fill" && cell) {
+    paintCell(cell.row, cell.col);
+  } else {
+    render();
+  }
 });
 
 canvas.addEventListener("mouseup", () => {
-  // TODO: Set isDrawing to false
+  isDrawing = false;
 });
 
 canvas.addEventListener("mouseleave", () => {
-  // TODO: Set isDrawing to false
-  // TODO: Set hoveredCell to null
-  // TODO: Call render()
+  isDrawing = false;
+  hoveredCell = null;
+  render();
 });
 
 // --- Step 3: Flood fill algorithm ---
