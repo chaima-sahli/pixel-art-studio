@@ -1,3 +1,8 @@
+/**
+ * Pixel Art Studio - Vanilla JS Implementation
+ * Canvas-based pixel editor with flood fill and PNG export
+ */
+
 const canvas = document.getElementById("pixel-canvas");
 const ctx = canvas.getContext("2d");
 
