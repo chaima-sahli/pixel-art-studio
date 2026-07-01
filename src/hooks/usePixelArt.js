@@ -1,4 +1,3 @@
-// src/hooks/usePixelArt.js
 import { useState, useCallback } from 'react';
 
 const PRESET_COLORS = [
