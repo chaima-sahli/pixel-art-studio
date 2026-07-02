@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { usePixelArt } from './hooks/usePixelArt';
 import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
@@ -22,6 +23,43 @@ function App() {
     resetGrid,
     PRESET_COLORS,
   } = usePixelArt(16);
+  
+  // ===== KEYBOARD SHORTCUTS =====
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Tool shortcuts
+      if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        setCurrentTool('pen');
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        setCurrentTool('eraser');
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        setCurrentTool('fill');
+      }
+      
+      // Number shortcuts for colors (1-8, then shift+1-8 for 9-16)
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= 8) {
+        e.preventDefault();
+        setCurrentColor(PRESET_COLORS[num - 1]);
+      }
+      // Shift + number for colors 9-16
+      if (e.shiftKey) {
+        const shiftNum = parseInt(e.key);
+        if (shiftNum >= 1 && shiftNum <= 8) {
+          e.preventDefault();
+          setCurrentColor(PRESET_COLORS[shiftNum + 7]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setCurrentTool, setCurrentColor, PRESET_COLORS]);
+
+
 
   const handleExport = () => {
     const exportCanvas = document.createElement('canvas');
