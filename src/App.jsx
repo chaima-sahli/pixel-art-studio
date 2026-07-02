@@ -1,122 +1,125 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { usePixelArt } from './hooks/usePixelArt';
+import { Canvas } from './components/Canvas';
+import { Toolbar } from './components/Toolbar';
+import { ColorPalette } from './components/ColorPalette';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    grid,
+    gridSize,
+    cellSize,
+    currentColor,
+    currentTool,
+    isDrawing,
+    hoveredCell,
+    setCurrentColor,
+    setCurrentTool,
+    setIsDrawing,
+    setHoveredCell,
+    paintCell,
+    floodFill,
+    resetGrid,
+    PRESET_COLORS,
+  } = usePixelArt(16);
+
+  // Export PNG
+  const handleExport = () => {
+    const exportCanvas = document.createElement('canvas');
+    const exportCtx = exportCanvas.getContext('2d');
+    const exportCellSize = Math.max(16, Math.floor(512 / gridSize));
+    exportCanvas.width = gridSize * exportCellSize;
+    exportCanvas.height = gridSize * exportCellSize;
+
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        exportCtx.fillStyle = grid[row][col];
+        exportCtx.fillRect(col * exportCellSize, row * exportCellSize, exportCellSize, exportCellSize);
+      }
+    }
+
+    const link = document.createElement('a');
+    link.download = 'pixel-art.png';
+    link.href = exportCanvas.toDataURL('image/png');
+    link.click();
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <div className="sidebar">
+        <h1 style={{ color: '#fff', fontSize: '20px', marginBottom: '20px' }}>
+          🎨 Pixel Studio
+        </h1>
+        
+        <Toolbar currentTool={currentTool} setCurrentTool={setCurrentTool} />
+        <ColorPalette 
+          colors={PRESET_COLORS} 
+          currentColor={currentColor} 
+          setCurrentColor={setCurrentColor} 
+        />
+        
+        <div style={{ marginTop: '20px' }}>
+          <label style={{ color: '#aaa', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+            Grid Size
+          </label>
+          <select
+            value={gridSize}
+            onChange={(e) => {
+              if (confirm('Changing grid size will clear your canvas. Continue?')) {
+                resetGrid(Number(e.target.value));
+              }
+            }}
+            style={{
+              padding: '8px 12px',
+              background: '#222',
+              color: '#fff',
+              border: '1px solid #444',
+              borderRadius: '6px',
+              width: '100%',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="16">16 x 16</option>
+            <option value="32">32 x 32</option>
+            <option value="64">64 x 64</option>
+          </select>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
+
         <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={handleExport}
+          style={{
+            marginTop: '20px',
+            padding: '10px 16px',
+            background: '#2a7a2a',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            width: '100%',
+          }}
         >
-          Count is {count}
+          ⬇️ Download PNG
         </button>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <div className="canvas-container">
+        <Canvas
+          grid={grid}
+          gridSize={gridSize}
+          cellSize={cellSize}
+          currentColor={currentColor}
+          currentTool={currentTool}
+          isDrawing={isDrawing}
+          setIsDrawing={setIsDrawing}
+          hoveredCell={hoveredCell}
+          setHoveredCell={setHoveredCell}
+          paintCell={paintCell}
+          floodFill={floodFill}
+        />
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
