@@ -102,6 +102,8 @@ export function Canvas({
   return (
     <canvas
       ref={canvasRef}
+      id="pixel-canvas"  
+      className="pixel-canvas" 
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
