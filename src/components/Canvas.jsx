@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { useSound } from '../hooks/useSound'; 
+import { useSound } from '../hooks/useSound';
 
 export function Canvas({ 
   grid, 
@@ -17,6 +17,7 @@ export function Canvas({
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const { playSound } = useSound();
+
   // Initialize canvas context
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,15 +26,13 @@ export function Canvas({
     canvas.height = gridSize * cellSize;
   }, [gridSize, cellSize]);
 
-  // Render function (replaces vanilla render())
+  // Render function
   useEffect(() => {
     const ctx = ctxRef.current;
     if (!ctx) return;
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Draw grid
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
         ctx.fillStyle = grid[row][col];
@@ -45,7 +44,6 @@ export function Canvas({
       }
     }
 
-    // Hover preview
     if (hoveredCell && !isDrawing) {
       const { row, col } = hoveredCell;
       const previewColor = currentTool === 'eraser' ? '#ffffff' : currentColor;
@@ -70,6 +68,9 @@ export function Canvas({
     return null;
   };
 
+  // Track if sound has been played for this click
+  const hasPlayedSound = useRef(false);
+
   // Mouse handlers
   const handleMouseDown = (e) => {
     setIsDrawing(true);
@@ -80,7 +81,11 @@ export function Canvas({
         playSound('fill'); 
       } else {
         paintCell(cell.row, cell.col);
-        playSound('paint');
+        //  Play sound only ONCE per click, not on drag
+        if (!hasPlayedSound.current) {
+          playSound('paint');
+          hasPlayedSound.current = true;
+        }
       }
     }
   };
@@ -90,24 +95,26 @@ export function Canvas({
     setHoveredCell(cell);
     if (isDrawing && currentTool !== 'fill' && cell) {
       paintCell(cell.row, cell.col);
-      playSound('paint');
     }
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
+    // Reset sound flag for next click
+    hasPlayedSound.current = false;
   };
 
   const handleMouseLeave = () => {
     setIsDrawing(false);
     setHoveredCell(null);
+    hasPlayedSound.current = false;
   };
 
   return (
     <canvas
       ref={canvasRef}
-      id="pixel-canvas"  
-      className="pixel-canvas" 
+      id="pixel-canvas"
+      className="pixel-canvas"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -115,8 +122,12 @@ export function Canvas({
       style={{
         display: 'block',
         cursor: 'crosshair',
-        backgroundColor: '#1a1a1a',
-        borderRadius: '8px',
+        backgroundColor: '#1a1a2e',
+        borderRadius: '4px',
+        width: '100%',
+        height: 'auto',
+        maxWidth: '520px',
+        aspectRatio: '1 / 1',
       }}
     />
   );

@@ -83,6 +83,7 @@ function App() {
   }, [cleanup]);
 
   const handleExport = () => {
+    playSound('success');
     const exportCanvas = document.createElement("canvas");
     const exportCtx = exportCanvas.getContext("2d");
     const exportCellSize = Math.max(16, Math.floor(512 / gridSize));
@@ -106,6 +107,8 @@ function App() {
     link.href = exportCanvas.toDataURL("image/png");
     link.click();
   };
+
+  
 
   return (
     <div className='app'>
