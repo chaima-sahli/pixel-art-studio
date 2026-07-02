@@ -95,6 +95,7 @@ export function Canvas({
     setHoveredCell(cell);
     if (isDrawing && currentTool !== 'fill' && cell) {
       paintCell(cell.row, cell.col);
+      // ❌ NO sound on drag - silent
     }
   };
 

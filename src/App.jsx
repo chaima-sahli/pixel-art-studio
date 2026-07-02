@@ -6,6 +6,7 @@ import { Toolbar } from "./components/Toolbar";
 import { ColorPalette } from "./components/ColorPalette";
 import "./App.css";
 import { useSound } from './hooks/useSound';
+import { GridControls } from './components/GridControls';
 
 function App() {
   const { playSound } = useSound();
@@ -233,29 +234,14 @@ function App() {
           )}
         </div>
 
-        <div className='grid-controls'>
-          <label>📐 GRID SIZE</label>
-          <select
-            className='grid-select'
-            value={gridSize}
-            onChange={(e) => {
-              if (
-                confirm("Changing grid size will clear your canvas. Continue?")
-              ) {
-                resetGrid(Number(e.target.value));
-              }
-            }}
-          >
-            <option value='16'>16 × 16</option>
-            <option value='32'>32 × 32</option>
-            <option value='64'>64 × 64</option>
-          </select>
-        </div>
+    
+        <GridControls gridSize={gridSize} resetGrid={resetGrid} />
 
         <button className='export-btn' onClick={handleExport}>
           ⬇ DOWNLOAD PNG
         </button>
       </div>
+
 
       <div className='canvas-container'>
         <Canvas

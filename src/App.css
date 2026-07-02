@@ -332,7 +332,7 @@ body {
   padding: 3px 8px;
   border-radius: 4px;
   border: 1px solid #8394FE;
-  max-width: 70px;
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -793,5 +793,306 @@ body {
   .grid-select {
     font-size: 7px;
     padding: 5px 8px;
+  }
+}
+
+/* ===== CUSTOM COLOR PICKER ===== */
+/* ===== CUSTOM COLOR PICKER ===== */
+/* ===== CUSTOM COLOR PICKER ===== */
+.custom-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 2px solid #8394FE;
+}
+
+.custom-color-label {
+  color: #F3ABFF;
+  font-size: 7px;
+  letter-spacing: 2px;
+}
+
+/* Fix the color input - consistent size */
+.custom-color-input {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 !important;
+  border: 3px solid #8394FE !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+
+/* Remove white border that appears inside */
+.custom-color-input::-webkit-color-swatch-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+.custom-color-input::-webkit-color-swatch {
+  border: none !important;
+  border-radius: 3px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* For Firefox */
+.custom-color-input::-moz-color-swatch {
+  border: none !important;
+  border-radius: 3px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.custom-color-input:hover {
+  border-color: #F3ABFF !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(243, 171, 255, 0.2);
+}
+
+.custom-color-input:active {
+  transform: scale(0.95);
+}
+
+.custom-color-hex {
+  color: #8394FE;
+  font-size: 7px;
+  margin-left: auto;
+  background: #3E39DD;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 2px solid #8394FE;
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+/* ===== MODAL - GAME STYLE ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.2s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-container {
+  background: #3E39DD;
+  border-radius: 16px;
+  border: 4px solid #8394FE;
+  box-shadow: 
+    0 0 0 6px #1a1a2e,
+    0 0 0 10px #5550E2,
+    0 0 0 14px #1a1a2e,
+    0 30px 80px rgba(0,0,0,0.8);
+  max-width: 440px;
+  width: 90%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Scanline overlay on modal */
+.modal-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.02) 0px,
+      rgba(0,0,0,0.02) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+  pointer-events: none;
+  border-radius: 12px;
+  z-index: 5;
+}
+
+.modal-title-bar {
+  background: #5550E2;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #8394FE;
+  position: relative;
+  z-index: 6;
+}
+
+.modal-title-icon {
+  color: #F3ABFF;
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.modal-title {
+  color: #FEFCFF;
+  font-size: 11px;
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing: 2px;
+  flex: 1;
+}
+
+.modal-close-btn {
+  background: #3E39DD;
+  border: 2px solid #8394FE;
+  border-radius: 4px;
+  color: #FEFCFF;
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+}
+
+.modal-close-btn:hover {
+  background: #F46FF6;
+  border-color: #F3ABFF;
+  transform: scale(1.05);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.95);
+}
+
+.modal-body {
+  padding: 24px 20px;
+  position: relative;
+  z-index: 6;
+}
+
+.modal-message {
+  color: #FEFCFF;
+  font-size: 10px;
+  font-family: 'Press Start 2P', monospace;
+  line-height: 1.8;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.modal-message .highlight {
+  color: #F46FF6;
+}
+
+.modal-footer {
+  padding: 12px 20px 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  border-top: 2px solid #8394FE;
+  position: relative;
+  z-index: 6;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 1px;
+  border: 3px solid #8394FE;
+}
+
+.modal-btn-cancel {
+  background: #3E39DD;
+  color: #F3ABFF;
+  border-color: #8394FE;
+}
+
+.modal-btn-cancel:hover {
+  background: #5550E2;
+  border-color: #F3ABFF;
+  transform: scale(1.03);
+}
+
+.modal-btn-confirm {
+  background: #F46FF6;
+  color: #FEFCFF;
+  border-color: #F3ABFF;
+}
+
+.modal-btn-confirm:hover {
+  background: #F3ABFF;
+  border-color: #FEFCFF;
+  color: #3E39DD;
+  transform: scale(1.03);
+}
+
+.modal-btn:active {
+  transform: scale(0.95);
+}
+
+/* Modal pixel decorations */
+.modal-container::before {
+  content: '◈ ◈ ◈';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #8394FE;
+  font-size: 8px;
+  letter-spacing: 8px;
+  opacity: 0.3;
+  z-index: 7;
+}
+
+/* Responsive modal */
+@media (max-width: 480px) {
+  .modal-container {
+    max-width: 340px;
+  }
+  
+  .modal-title {
+    font-size: 9px;
+  }
+  
+  .modal-message {
+    font-size: 8px;
+  }
+  
+  .modal-btn {
+    font-size: 6px;
+    padding: 8px 14px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
   }
 }

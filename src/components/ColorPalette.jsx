@@ -1,3 +1,4 @@
+// src/components/ColorPalette.jsx
 import { useState } from 'react';
 import { useSound } from '../hooks/useSound';
 
@@ -15,7 +16,10 @@ export function ColorPalette({ colors, currentColor, setCurrentColor }) {
     const color = e.target.value;
     setCustomColor(color);
     setCurrentColor(color);
-    playSound('click'); 
+  };
+
+  const handleCustomColorClick = () => {
+    playSound('click');
   };
 
   return (
@@ -36,13 +40,16 @@ export function ColorPalette({ colors, currentColor, setCurrentColor }) {
 
       <div className="custom-color-row">
         <span className="custom-color-label">CUSTOM</span>
+        
         <input
           type="color"
           className="custom-color-input"
           value={customColor}
           onChange={handleCustomColorChange}
+          onClick={handleCustomColorClick}
         />
-        <span className="custom-color-hex">{customColor.toUpperCase()}</span>
+        
+        <span className="custom-color-hex" >{customColor.toUpperCase()}</span>
       </div>
     </div>
   );
