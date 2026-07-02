@@ -5,8 +5,10 @@ import { Canvas } from "./components/Canvas";
 import { Toolbar } from "./components/Toolbar";
 import { ColorPalette } from "./components/ColorPalette";
 import "./App.css";
+import { useSound } from './hooks/useSound';
 
 function App() {
+  const { playSound } = useSound();
   const {
     grid,
     gridSize,
@@ -43,12 +45,15 @@ function App() {
       if (e.key === "p" || e.key === "P") {
         e.preventDefault();
         setCurrentTool("pen");
+        playSound('click');
       } else if (e.key === "e" || e.key === "E") {
         e.preventDefault();
         setCurrentTool("eraser");
+        playSound('click');
       } else if (e.key === "f" || e.key === "F") {
         e.preventDefault();
         setCurrentTool("fill");
+        playSound('click');
       }
 
       // Number shortcuts for colors
@@ -56,19 +61,21 @@ function App() {
       if (num >= 1 && num <= 8) {
         e.preventDefault();
         setCurrentColor(PRESET_COLORS[num - 1]);
+        playSound('click');
       }
       if (e.shiftKey) {
         const shiftNum = parseInt(e.key);
         if (shiftNum >= 1 && shiftNum <= 8) {
           e.preventDefault();
           setCurrentColor(PRESET_COLORS[shiftNum + 7]);
+          playSound('click');
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setCurrentTool, setCurrentColor, PRESET_COLORS]);
+  }, [setCurrentTool, setCurrentColor, PRESET_COLORS, playSound]);
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -108,8 +115,7 @@ function App() {
       <div className='corner-glow br'></div>
       <div className='sidebar'>
         <div className='sidebar-title'>
-          🎨 PIXEL STUDIO
-          <span>ART MAKER v1.0</span>
+           PIXEL ART STUDIO
         </div>
 
         <Toolbar currentTool={currentTool} setCurrentTool={setCurrentTool} />
@@ -130,7 +136,7 @@ function App() {
               className='frame-btn save-btn'
               onClick={() => {
                 saveFrame();
-                // playSound("success");
+                playSound("success");
               }}
               title='Save current frame'
             >
@@ -147,7 +153,7 @@ function App() {
               className='frame-btn'
               onClick={() => {
                 loadFrame(currentFrameIndex - 1);
-                // playSound("click");
+                playSound("click");
               }}
               disabled={currentFrameIndex <= 0 || frames.length === 0}
               title='Previous frame'
@@ -159,7 +165,7 @@ function App() {
               className='frame-btn'
               onClick={() => {
                 loadFrame(currentFrameIndex + 1);
-                // playSound("click");
+                playSound("click");
               }}
               disabled={
                 currentFrameIndex >= frames.length - 1 || frames.length === 0
@@ -173,7 +179,7 @@ function App() {
               className='frame-btn delete-btn'
               onClick={() => {
                 deleteFrame();
-                // playSound("error");
+                playSound("error");
               }}
               disabled={frames.length === 0}
               title='Delete current frame'
@@ -193,7 +199,7 @@ function App() {
                 className={`play-btn play ${frames.length < 2 ? "disabled" : ""}`}
                 onClick={() => {
                   playAnimation();
-                  // playSound("success");
+                  playSound("success");
                 }}
                 disabled={frames.length < 2}
               >
@@ -207,7 +213,7 @@ function App() {
               className='frame-btn clear-btn'
               onClick={() => {
                 clearFrames();
-                // playSound("error");
+                playSound("error");
               }}
               disabled={frames.length === 0}
               title='Clear all frames'

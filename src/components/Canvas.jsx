@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useSound } from '../hooks/useSound'; 
 
 export function Canvas({ 
   grid, 
@@ -15,7 +16,7 @@ export function Canvas({
 }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
-
+  const { playSound } = useSound();
   // Initialize canvas context
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -76,8 +77,10 @@ export function Canvas({
     if (cell) {
       if (currentTool === 'fill') {
         floodFill(cell.row, cell.col, currentColor);
+        playSound('fill'); 
       } else {
         paintCell(cell.row, cell.col);
+        playSound('paint');
       }
     }
   };
@@ -87,6 +90,7 @@ export function Canvas({
     setHoveredCell(cell);
     if (isDrawing && currentTool !== 'fill' && cell) {
       paintCell(cell.row, cell.col);
+      playSound('paint');
     }
   };
 
