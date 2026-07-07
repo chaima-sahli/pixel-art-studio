@@ -46,7 +46,10 @@ function App() {
     canRedo,
     initialize,
     startStroke,   
-    endStroke,     
+    endStroke,    
+     
+    clearCanvas,
+
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -264,6 +267,8 @@ function App() {
 
         <GridControls gridSize={gridSize} resetGrid={resetGrid} />
 
+
+
         <button className="export-btn" onClick={handleExport}>
           ⬇ DOWNLOAD PNG
         </button>
@@ -276,6 +281,7 @@ function App() {
           onRedo={redo}
           canUndo={canUndo}
           canRedo={canRedo}
+          onClear={clearCanvas}
         />
         
         <Canvas

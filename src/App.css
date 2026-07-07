@@ -24,7 +24,7 @@ body {
 .app {
   display: flex;
   gap: 0;
-  max-width: 1200px;
+  max-width: 1300px;
   width: 100%;
   background: #3E39DD;
   padding: 24px;
@@ -1097,28 +1097,29 @@ body {
   }
 }
 
-/* ===== UNDO/REDO FLOATING BUTTONS ===== */
+/* ===== UNDO/REDO/CLEAR FLOATING BUTTONS ===== */
 .undo-redo-container {
   position: absolute;
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   z-index: 20;
-  background: rgba(30, 25, 20, 0.8);
-  padding: 6px 10px;
+  background: rgba(30, 25, 20, 0.85);
+  padding: 6px 12px;
   border-radius: 10px;
   border: 2px solid rgba(131, 148, 254, 0.3);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .undo-redo-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   background: #3E39DD;
   border: 2px solid #8394FE;
   border-radius: 6px;
@@ -1147,6 +1148,12 @@ body {
   transform: none !important;
 }
 
+.undo-redo-btn.disabled:hover {
+  background: #3E39DD;
+  border-color: #8394FE;
+  box-shadow: none;
+}
+
 .undo-redo-icon {
   font-size: 14px;
   line-height: 1;
@@ -1157,6 +1164,7 @@ body {
   letter-spacing: 1px;
 }
 
+/* Button specific colors */
 .undo-btn {
   background: #3E39DD;
   border-color: #8394FE;
@@ -1177,7 +1185,26 @@ body {
   border-color: #F3ABFF;
 }
 
-/* ===== RESPONSIVE UNDO/REDO ===== */
+.clear-btn {
+  background: #3E39DD;
+  border-color: #8394FE;
+}
+
+.clear-btn:hover {
+  background: #F46FF6 !important;
+  border-color: #F3ABFF !important;
+}
+
+/* Divider between redo and clear */
+.undo-redo-divider {
+  width: 2px;
+  height: 28px;
+  background: #8394FE;
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 820px) {
   .undo-redo-container {
     position: relative;
@@ -1191,11 +1218,12 @@ body {
     box-shadow: none;
     padding: 0;
     border: none;
-    gap: 6px;
+    gap: 4px;
+    flex-wrap: wrap;
   }
 
   .undo-redo-btn {
-    padding: 4px 10px;
+    padding: 4px 8px;
     font-size: 6px;
   }
 
@@ -1206,11 +1234,15 @@ body {
   .undo-redo-label {
     font-size: 5px;
   }
+
+  .undo-redo-divider {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
   .undo-redo-btn {
-    padding: 3px 8px;
+    padding: 3px 6px;
     font-size: 5px;
   }
 
@@ -1220,5 +1252,9 @@ body {
 
   .undo-redo-label {
     display: none;
+  }
+
+  .undo-redo-container {
+    gap: 3px;
   }
 }

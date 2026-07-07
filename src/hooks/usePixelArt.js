@@ -106,6 +106,26 @@ export function usePixelArt(initialSize = 16) {
     }
   }, [history, historyIndex]);
 
+
+
+  // ! CLEAR CANVAS 
+  const clearCanvas = useCallback(() => {
+    // End any active stroke first
+    if (isStrokeActive.current) {
+      endStroke();
+    }
+    
+    // Create empty grid
+    const emptyGrid = Array.from({ length: gridSize }, () =>
+      Array(gridSize).fill('#ffffff')
+    );
+    
+    setGrid(emptyGrid);
+    saveHistory(emptyGrid);
+  }, [gridSize, saveHistory, endStroke]);
+
+
+
   // ===== PAINT CELL (Modified for batching) =====
   const paintCell = useCallback((row, col) => {
     const newGrid = grid.map(row => [...row]);
@@ -162,7 +182,7 @@ export function usePixelArt(initialSize = 16) {
     }
   }, [grid]);
 
-  // ===== ANIMATION FUNCTIONS =====
+  // !ANIMATION FUNCTIONS 
   const saveFrame = useCallback(() => {
     // End any active stroke before saving frame
     if (isStrokeActive.current) {
@@ -232,6 +252,8 @@ export function usePixelArt(initialSize = 16) {
     }
   }, []);
 
+
+
   return {
     // Existing
     grid,
@@ -269,5 +291,7 @@ export function usePixelArt(initialSize = 16) {
     // Stroke batching
     startStroke,
     endStroke,
+
+    clearCanvas,
   };
 }
