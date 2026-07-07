@@ -1,5 +1,4 @@
-// src/App.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePixelArt } from "./hooks/usePixelArt";
 import { useSound } from "./hooks/useSound";
 import { Canvas } from "./components/Canvas";
@@ -12,6 +11,7 @@ import "./App.css";
 function App() {
   const { playSound } = useSound();
   const [saveStatus, setSaveStatus] = useState("💾 Saved");
+  const saveTimerRef = useRef(null);
 
  ;
 
@@ -59,14 +59,28 @@ function App() {
     initialize();
   }, [initialize]);
 
-   useEffect(() => {
-    // Show "Saving..." briefly when grid changes
-    setSaveStatus(" Saving...");
-    const timer = setTimeout(() => {
-      setSaveStatus(" Saved");
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [grid])
+  const prevGridRef = useRef(grid);
+  useEffect(() => {
+    // Only show "Saving..." if grid actually changed from previous value
+    if (prevGridRef.current !== grid) {
+      // Use a microtask to defer the setState (breaks synchronous cascade)
+      const timeoutId = setTimeout(() => {
+        setSaveStatus("💾 Saving...");
+        
+        // Then show "Saved" after 500ms
+        saveTimerRef.current = setTimeout(() => {
+          setSaveStatus("💾 Saved");
+        }, 500);
+      }, 0);
+
+      prevGridRef.current = grid;
+      
+      return () => {
+        clearTimeout(timeoutId);
+        clearTimeout(saveTimerRef.current);
+      };
+    }
+  }, [grid]);
 
   // ===== KEYBOARD SHORTCUTS =====
   useEffect(() => {
