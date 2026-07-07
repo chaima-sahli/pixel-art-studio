@@ -53,7 +53,7 @@ export function UndoRedoButtons({
           title="Undo (Ctrl+Z)"
         >
           <span className="undo-redo-icon">↩</span>
-          <span className="undo-redo-label">UNDO</span>
+          {/* <span className="undo-redo-label">UNDO</span> */}
         </button>
         
         <button
@@ -63,7 +63,7 @@ export function UndoRedoButtons({
           title="Redo (Ctrl+Y)"
         >
           <span className="undo-redo-icon">↪</span>
-          <span className="undo-redo-label">REDO</span>
+          {/* <span className="undo-redo-label">REDO</span> */}
         </button>
 
         <div className="undo-redo-divider"></div>

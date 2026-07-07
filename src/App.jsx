@@ -10,10 +10,8 @@ import "./App.css";
 
 function App() {
   const { playSound } = useSound();
-  const [saveStatus, setSaveStatus] = useState("💾 Saved");
+  const [saveStatus, setSaveStatus] = useState(" Saved");
   const saveTimerRef = useRef(null);
-
- ;
 
   const {
     grid,
@@ -65,16 +63,16 @@ function App() {
     if (prevGridRef.current !== grid) {
       // Use a microtask to defer the setState (breaks synchronous cascade)
       const timeoutId = setTimeout(() => {
-        setSaveStatus("💾 Saving...");
-        
+        setSaveStatus(" Saving...");
+
         // Then show "Saved" after 500ms
         saveTimerRef.current = setTimeout(() => {
-          setSaveStatus("💾 Saved");
+          setSaveStatus(" Saved");
         }, 500);
       }, 0);
 
       prevGridRef.current = grid;
-      
+
       return () => {
         clearTimeout(timeoutId);
         clearTimeout(saveTimerRef.current);
@@ -181,6 +179,28 @@ function App() {
     link.download = "pixel-art.png";
     link.href = exportCanvas.toDataURL("image/png");
     link.click();
+  };
+
+  const handleExportGif = async () => {
+    if (frames.length < 2) {
+      playSound("error");
+      alert("You need at least 2 frames to export as GIF!");
+      return;
+    }
+
+    playSound("success");
+
+    // Show loading state
+    setSaveStatus("🎬 Generating GIF...");
+
+    try {
+      // For now, show a placeholder
+      alert(`Exporting ${frames.length} frames as GIF... (Coming soon!)`);
+      setSaveStatus("💾 Saved");
+    } catch (error) {
+      console.error("Failed to export GIF:", error);
+      setSaveStatus("💾 Error");
+    }
   };
 
   return (
@@ -313,9 +333,26 @@ function App() {
 
         <GridControls gridSize={gridSize} resetGrid={resetGrid} />
 
-        <button className='export-btn' onClick={handleExport}>
-          ⬇ DOWNLOAD PNG
-        </button>
+        <div className='export-section'>
+          <button className='export-btn' onClick={handleExport}>
+            ⬇ DOWNLOAD PNG
+          </button>
+          <button
+            className={`export-btn gif-btn ${frames.length < 2 ? "disabled" : ""}`}
+            onClick={handleExportGif}
+            disabled={frames.length < 2}
+            title={
+              frames.length < 2
+                ? "Need at least 2 frames"
+                : "Export as animated GIF"
+            }
+          >
+            🎬 EXPORT GIF
+          </button>
+          {frames.length < 2 && (
+            <span className='gif-hint'>Need 2+ frames</span>
+          )}
+        </div>
       </div>
 
       <div className='canvas-container'>
