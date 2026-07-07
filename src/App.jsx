@@ -6,7 +6,7 @@ import { Canvas } from './components/Canvas';
 import { Toolbar } from './components/Toolbar';
 import { ColorPalette } from './components/ColorPalette';
 import { GridControls } from './components/GridControls';
-import { UndoRedoButtons } from './components/UndoRedoButtons';  // ← ADD THIS
+import { UndoRedoButtons } from './components/UndoRedoButtons';   
 import './App.css';
 
 function App() {
@@ -45,6 +45,8 @@ function App() {
     canUndo,
     canRedo,
     initialize,
+    startStroke,   
+    endStroke,     
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -288,6 +290,8 @@ function App() {
           setHoveredCell={setHoveredCell}
           paintCell={paintCell}
           floodFill={floodFill}
+          startStroke={startStroke}   
+          endStroke={endStroke}       
         />
       </div>
     </div>

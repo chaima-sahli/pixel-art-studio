@@ -12,7 +12,9 @@ export function Canvas({
   hoveredCell, 
   setHoveredCell,
   paintCell,
-  floodFill 
+  floodFill,
+  startStroke,   
+  endStroke,     
 }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -78,10 +80,11 @@ export function Canvas({
     if (cell) {
       if (currentTool === 'fill') {
         floodFill(cell.row, cell.col, currentColor);
-        playSound('fill'); 
+        playSound('fill');
       } else {
+        // Start a new stroke (for undo batching)
+        startStroke();
         paintCell(cell.row, cell.col);
-        //  Play sound only ONCE per click, not on drag
         if (!hasPlayedSound.current) {
           playSound('paint');
           hasPlayedSound.current = true;
@@ -95,24 +98,30 @@ export function Canvas({
     setHoveredCell(cell);
     if (isDrawing && currentTool !== 'fill' && cell) {
       paintCell(cell.row, cell.col);
-      // ❌ NO sound on drag - silent
+      // No sound on drag
     }
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
-    // Reset sound flag for next click
+    // End the stroke and save to history
+    if (currentTool !== 'fill') {
+      endStroke();
+    }
     hasPlayedSound.current = false;
   };
 
   const handleMouseLeave = () => {
     setIsDrawing(false);
     setHoveredCell(null);
+    // End the stroke and save to history
+    if (currentTool !== 'fill') {
+      endStroke();
+    }
     hasPlayedSound.current = false;
   };
 
   return (
-    <div className='canvas-container'>
     <canvas
       ref={canvasRef}
       id="pixel-canvas"
@@ -132,6 +141,5 @@ export function Canvas({
         aspectRatio: '1 / 1',
       }}
     />
-  </div>  
   );
 }
