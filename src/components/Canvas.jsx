@@ -112,6 +112,7 @@ export function Canvas({
   };
 
   return (
+    <div className='canvas-container'>
     <canvas
       ref={canvasRef}
       id="pixel-canvas"
@@ -131,5 +132,6 @@ export function Canvas({
         aspectRatio: '1 / 1',
       }}
     />
+  </div>  
   );
 }

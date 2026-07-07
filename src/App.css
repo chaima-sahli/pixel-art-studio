@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 * {
   margin: 0;
@@ -7,7 +8,6 @@
   image-rendering: crisp-edges;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 /* ===== BASE ===== */
 body {
@@ -1094,5 +1094,131 @@ body {
   
   .modal-footer {
     flex-direction: column;
+  }
+}
+
+/* ===== UNDO/REDO FLOATING BUTTONS ===== */
+.undo-redo-container {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+  background: rgba(30, 25, 20, 0.8);
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 2px solid rgba(131, 148, 254, 0.3);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.undo-redo-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #3E39DD;
+  border: 2px solid #8394FE;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Press Start 2P', monospace;
+  color: #FEFCFF;
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+
+.undo-redo-btn:hover:not(:disabled) {
+  background: #8394FE;
+  border-color: #F3ABFF;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(243, 171, 255, 0.2);
+}
+
+.undo-redo-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.undo-redo-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.undo-redo-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.undo-redo-label {
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+.undo-btn {
+  background: #3E39DD;
+  border-color: #8394FE;
+}
+
+.undo-btn:hover:not(:disabled) {
+  background: #8394FE;
+  border-color: #F3ABFF;
+}
+
+.redo-btn {
+  background: #3E39DD;
+  border-color: #8394FE;
+}
+
+.redo-btn:hover:not(:disabled) {
+  background: #8394FE;
+  border-color: #F3ABFF;
+}
+
+/* ===== RESPONSIVE UNDO/REDO ===== */
+@media (max-width: 820px) {
+  .undo-redo-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0;
+    border: none;
+    gap: 6px;
+  }
+
+  .undo-redo-btn {
+    padding: 4px 10px;
+    font-size: 6px;
+  }
+
+  .undo-redo-icon {
+    font-size: 12px;
+  }
+
+  .undo-redo-label {
+    font-size: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .undo-redo-btn {
+    padding: 3px 8px;
+    font-size: 5px;
+  }
+
+  .undo-redo-icon {
+    font-size: 10px;
+  }
+
+  .undo-redo-label {
+    display: none;
   }
 }

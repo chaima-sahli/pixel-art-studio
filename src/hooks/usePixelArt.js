@@ -1,37 +1,32 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from 'react';
 
 const PRESET_COLORS = [
-  "#000000",
-  "#ffffff",
-  "#ff0000",
-  "#00ff00",
-  "#0000ff",
-  "#ffff00",
-  "#ff00ff",
-  "#00ffff",
-  "#ff8800",
-  "#8800ff",
-  "#888888",
-  "#553322",
-  "#ff6688",
-  "#88ff66",
-  "#6688ff",
-  "#ffcc00",
+  '#000000', '#ffffff', '#ff0000', '#00ff00',
+  '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+  '#ff8800', '#8800ff', '#888888', '#553322',
+  '#ff6688', '#88ff66', '#6688ff', '#ffcc00',
 ];
 
 export function usePixelArt(initialSize = 16) {
+  //  EXISTING STATE 
   const [gridSize, setGridSize] = useState(initialSize);
   const [grid, setGrid] = useState(() =>
     Array.from({ length: initialSize }, () =>
-      Array(initialSize).fill("#ffffff"),
-    ),
+      Array(initialSize).fill('#ffffff')
+    )
   );
-  const [currentColor, setCurrentColor] = useState("#000000");
-  const [currentTool, setCurrentTool] = useState("pen");
+  const [currentColor, setCurrentColor] = useState('#000000');
+  const [currentTool, setCurrentTool] = useState('pen');
   const [isDrawing, setIsDrawing] = useState(false);
   const [hoveredCell, setHoveredCell] = useState(null);
+  
+  //  UNDO/REDO STATE 
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoRedo = useRef(false);
+  const isInitialized = useRef(false);
 
-  //  NEW: ANIMATION STATE
+  //  ANIMATION STATE 
   const [frames, setFrames] = useState([]);
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -39,104 +34,147 @@ export function usePixelArt(initialSize = 16) {
 
   const cellSize = Math.floor(480 / gridSize);
 
-  // Flood fill - iterative stack
-  const floodFill = useCallback(
-    (row, col, newColor) => {
-      const targetColor = grid[row][col];
-      if (targetColor === newColor) return;
+  //  SAVE HISTORY 
+  const saveHistory = useCallback((newGrid) => {
+    if (isUndoRedo.current) return;
+    
+    const newHistory = history.slice(0, historyIndex + 1);
+    const gridCopy = newGrid.map(row => [...row]);
+    newHistory.push(gridCopy);
+    
+    // Limit history to 50 steps to prevent memory issues
+    if (newHistory.length > 50) {
+      newHistory.shift();
+    }
+    
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [history, historyIndex]);
 
-      const newGrid = grid.map((row) => [...row]);
-      const stack = [[row, col]];
+  //  UNDO 
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      isUndoRedo.current = true;
+      const prevIndex = historyIndex - 1;
+      setHistoryIndex(prevIndex);
+      setGrid(history[prevIndex].map(row => [...row]));
+      setTimeout(() => {
+        isUndoRedo.current = false;
+      }, 100);
+    }
+  }, [history, historyIndex]);
 
-      while (stack.length > 0) {
-        const [r, c] = stack.pop();
-        if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) continue;
-        if (newGrid[r][c] !== targetColor) continue;
+  //  REDO 
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      isUndoRedo.current = true;
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setGrid(history[nextIndex].map(row => [...row]));
+      setTimeout(() => {
+        isUndoRedo.current = false;
+      }, 100);
+    }
+  }, [history, historyIndex]);
 
-        newGrid[r][c] = newColor;
-        stack.push([r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]);
-      }
+  //  PAINT CELL 
+  const paintCell = useCallback((row, col) => {
+    const newGrid = grid.map(row => [...row]);
+    if (currentTool === 'pen') {
+      newGrid[row][col] = currentColor;
+    } else if (currentTool === 'eraser') {
+      newGrid[row][col] = '#ffffff';
+    }
+    setGrid(newGrid);
+    saveHistory(newGrid);
+  }, [grid, currentTool, currentColor, saveHistory]);
 
-      setGrid(newGrid);
-    },
-    [grid, gridSize],
-  );
+  //  FLOOD FILL 
+  const floodFill = useCallback((row, col, newColor) => {
+    const targetColor = grid[row][col];
+    if (targetColor === newColor) return;
 
-  // Paint single cell
-  const paintCell = useCallback(
-    (row, col) => {
-      const newGrid = grid.map((row) => [...row]);
-      if (currentTool === "pen") {
-        newGrid[row][col] = currentColor;
-      } else if (currentTool === "eraser") {
-        newGrid[row][col] = "#ffffff";
-      }
-      setGrid(newGrid);
-    },
-    [grid, currentTool, currentColor],
-  );
+    const newGrid = grid.map(row => [...row]);
+    const stack = [[row, col]];
 
-  // Reset grid when size changes
+    while (stack.length > 0) {
+      const [r, c] = stack.pop();
+      if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) continue;
+      if (newGrid[r][c] !== targetColor) continue;
+
+      newGrid[r][c] = newColor;
+      stack.push([r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]);
+    }
+
+    setGrid(newGrid);
+    saveHistory(newGrid);
+  }, [grid, gridSize, saveHistory]);
+
+  //  RESET GRID 
   const resetGrid = useCallback((newSize) => {
-    setGridSize(newSize);
-    setGrid(
-      Array.from({ length: newSize }, () => Array(newSize).fill("#ffffff")),
+    const newGrid = Array.from({ length: newSize }, () =>
+      Array(newSize).fill('#ffffff')
     );
+    setGridSize(newSize);
+    setGrid(newGrid);
+    // Reset history when grid size changes
+    setHistory([newGrid.map(row => [...row])]);
+    setHistoryIndex(0);
   }, []);
 
-  //! new functions
+  //  INITIALIZE HISTORY 
+  const initialize = useCallback(() => {
+    if (!isInitialized.current) {
+      const initialGrid = grid.map(row => [...row]);
+      setHistory([initialGrid]);
+      setHistoryIndex(0);
+      isInitialized.current = true;
+    }
+  }, [grid]);
 
-  // Save current grid as a frame
+  //  ANIMATION FUNCTIONS 
   const saveFrame = useCallback(() => {
-    const frameCopy = grid.map((row) => [...row]);
-    setFrames((prev) => [...prev, frameCopy]);
-    // Auto-select the new frame
+    const frameCopy = grid.map(row => [...row]);
+    setFrames(prev => [...prev, frameCopy]);
     setCurrentFrameIndex(frames.length);
   }, [grid, frames.length]);
 
-  // Load a specific frame
-  const loadFrame = useCallback(
-    (index) => {
-      if (index >= 0 && index < frames.length) {
-        setGrid(frames[index].map((row) => [...row]));
-        setCurrentFrameIndex(index);
-      }
-    },
-    [frames],
-  );
+  const loadFrame = useCallback((index) => {
+    if (index >= 0 && index < frames.length) {
+      const newGrid = frames[index].map(row => [...row]);
+      setGrid(newGrid);
+      setCurrentFrameIndex(index);
+      saveHistory(newGrid);
+    }
+  }, [frames, saveHistory]);
 
-  // Delete a frame
-  const deleteFrame = useCallback(
-    (index) => {
-      setFrames((prev) => prev.filter((_, i) => i !== index));
-      if (currentFrameIndex >= frames.length - 1) {
-        setCurrentFrameIndex(Math.max(0, frames.length - 2));
-      }
-    },
-    [frames.length, currentFrameIndex],
-  );
+  const deleteFrame = useCallback((index) => {
+    setFrames(prev => prev.filter((_, i) => i !== index));
+    if (currentFrameIndex >= frames.length - 1) {
+      setCurrentFrameIndex(Math.max(0, frames.length - 2));
+    }
+  }, [frames.length, currentFrameIndex]);
 
-  // Clear all frames
   const clearFrames = useCallback(() => {
     setFrames([]);
     setCurrentFrameIndex(0);
   }, []);
 
-  // Play animation
   const playAnimation = useCallback(() => {
     if (frames.length < 2) return;
-
+    
     setIsAnimating(true);
     let index = 0;
-
+    
     animationRef.current = setInterval(() => {
       index = (index + 1) % frames.length;
-      setGrid(frames[index].map((row) => [...row]));
+      const newGrid = frames[index].map(row => [...row]);
+      setGrid(newGrid);
       setCurrentFrameIndex(index);
-    }, 300); // 300ms per frame
+      // Don't save animation steps to history
+    }, 300);
   }, [frames]);
 
-  // Stop animation
   const stopAnimation = useCallback(() => {
     if (animationRef.current) {
       clearInterval(animationRef.current);
@@ -145,7 +183,6 @@ export function usePixelArt(initialSize = 16) {
     setIsAnimating(false);
   }, []);
 
-  // Clean up on unmount
   const cleanup = useCallback(() => {
     if (animationRef.current) {
       clearInterval(animationRef.current);
@@ -154,6 +191,7 @@ export function usePixelArt(initialSize = 16) {
   }, []);
 
   return {
+    // Existing
     grid,
     gridSize,
     cellSize,
@@ -169,7 +207,8 @@ export function usePixelArt(initialSize = 16) {
     floodFill,
     resetGrid,
     PRESET_COLORS,
-      frames,
+    // Animation
+    frames,
     currentFrameIndex,
     isAnimating,
     saveFrame,
@@ -179,5 +218,11 @@ export function usePixelArt(initialSize = 16) {
     playAnimation,
     stopAnimation,
     cleanup,
+    // Undo/Redo
+    undo,
+    redo,
+    canUndo: historyIndex > 0,
+    canRedo: historyIndex < history.length - 1,
+    initialize,
   };
 }
