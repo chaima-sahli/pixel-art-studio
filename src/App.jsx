@@ -1,17 +1,20 @@
 // src/App.jsx
-import { useEffect } from 'react';
-import { usePixelArt } from './hooks/usePixelArt';
-import { useSound } from './hooks/useSound';
-import { Canvas } from './components/Canvas';
-import { Toolbar } from './components/Toolbar';
-import { ColorPalette } from './components/ColorPalette';
-import { GridControls } from './components/GridControls';
-import { UndoRedoButtons } from './components/UndoRedoButtons';   
-import './App.css';
+import { useEffect, useState } from "react";
+import { usePixelArt } from "./hooks/usePixelArt";
+import { useSound } from "./hooks/useSound";
+import { Canvas } from "./components/Canvas";
+import { Toolbar } from "./components/Toolbar";
+import { ColorPalette } from "./components/ColorPalette";
+import { GridControls } from "./components/GridControls";
+import { UndoRedoButtons } from "./components/UndoRedoButtons";
+import "./App.css";
 
 function App() {
   const { playSound } = useSound();
-  
+  const [saveStatus, setSaveStatus] = useState("💾 Saved");
+
+ ;
+
   const {
     grid,
     gridSize,
@@ -45,11 +48,10 @@ function App() {
     canUndo,
     canRedo,
     initialize,
-    startStroke,   
-    endStroke,    
-     
-    clearCanvas,
+    startStroke,
+    endStroke,
 
+    clearCanvas,
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -57,62 +59,83 @@ function App() {
     initialize();
   }, [initialize]);
 
+   useEffect(() => {
+    // Show "Saving..." briefly when grid changes
+    setSaveStatus(" Saving...");
+    const timer = setTimeout(() => {
+      setSaveStatus(" Saved");
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [grid])
+
   // ===== KEYBOARD SHORTCUTS =====
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Tool shortcuts
-      if (e.key === 'p' || e.key === 'P') {
+      if (e.key === "p" || e.key === "P") {
         e.preventDefault();
-        setCurrentTool('pen');
-        playSound('click');
-      } else if (e.key === 'e' || e.key === 'E') {
+        setCurrentTool("pen");
+        playSound("click");
+      } else if (e.key === "e" || e.key === "E") {
         e.preventDefault();
-        setCurrentTool('eraser');
-        playSound('click');
-      } else if (e.key === 'f' || e.key === 'F') {
+        setCurrentTool("eraser");
+        playSound("click");
+      } else if (e.key === "f" || e.key === "F") {
         e.preventDefault();
-        setCurrentTool('fill');
-        playSound('click');
+        setCurrentTool("fill");
+        playSound("click");
       }
-      
+
       // Undo (Ctrl+Z)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         if (canUndo) {
           undo();
-          playSound('click');
+          playSound("click");
         }
       }
-      
+
       // Redo (Ctrl+Y or Ctrl+Shift+Z)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.key === "y" || (e.shiftKey && e.key === "z"))
+      ) {
         e.preventDefault();
         if (canRedo) {
           redo();
-          playSound('click');
+          playSound("click");
         }
       }
-      
+
       // Number shortcuts for colors
       const num = parseInt(e.key);
       if (num >= 1 && num <= 8 && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         setCurrentColor(PRESET_COLORS[num - 1]);
-        playSound('click');
+        playSound("click");
       }
       if (e.shiftKey && !e.ctrlKey && !e.metaKey) {
         const shiftNum = parseInt(e.key);
         if (shiftNum >= 1 && shiftNum <= 8) {
           e.preventDefault();
           setCurrentColor(PRESET_COLORS[shiftNum + 7]);
-          playSound('click');
+          playSound("click");
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setCurrentTool, setCurrentColor, PRESET_COLORS, playSound, undo, redo, canUndo, canRedo]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    setCurrentTool,
+    setCurrentColor,
+    PRESET_COLORS,
+    playSound,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  ]);
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -120,10 +143,10 @@ function App() {
   }, [cleanup]);
 
   const handleExport = () => {
-    playSound('success');
+    playSound("success");
 
-    const exportCanvas = document.createElement('canvas');
-    const exportCtx = exportCanvas.getContext('2d');
+    const exportCanvas = document.createElement("canvas");
+    const exportCtx = exportCanvas.getContext("2d");
     const exportCellSize = Math.max(16, Math.floor(512 / gridSize));
     exportCanvas.width = gridSize * exportCellSize;
     exportCanvas.height = gridSize * exportCellSize;
@@ -135,32 +158,32 @@ function App() {
           col * exportCellSize,
           row * exportCellSize,
           exportCellSize,
-          exportCellSize
+          exportCellSize,
         );
       }
     }
 
-    const link = document.createElement('a');
-    link.download = 'pixel-art.png';
-    link.href = exportCanvas.toDataURL('image/png');
+    const link = document.createElement("a");
+    link.download = "pixel-art.png";
+    link.href = exportCanvas.toDataURL("image/png");
     link.click();
   };
 
   return (
-    <div className="app">
-      <div className="corner-glow tl"></div>
-      <div className="corner-glow tr"></div>
-      <div className="corner-glow bl"></div>
-      <div className="corner-glow br"></div>
+    <div className='app'>
+      <div className='corner-glow tl'></div>
+      <div className='corner-glow tr'></div>
+      <div className='corner-glow bl'></div>
+      <div className='corner-glow br'></div>
 
-      <div className="sidebar">
-        <div className="menu-title">
+      <div className='sidebar'>
+        <div className='menu-title'>
           PIXEL STUDIO
           <span>ART MAKER v1.0</span>
         </div>
 
         <Toolbar currentTool={currentTool} setCurrentTool={setCurrentTool} />
-        
+
         <ColorPalette
           colors={PRESET_COLORS}
           currentColor={currentColor}
@@ -168,98 +191,107 @@ function App() {
         />
 
         {/* ===== ANIMATION CONTROLS ===== */}
-        <div className="animation-section">
-          <span className="animation-label">🎬 FRAMES</span>
-          
-          <div className="frame-controls">
-            <button 
-              className="frame-btn save-btn" 
+        <div className='animation-section'>
+          <span className='animation-label'>🎬 FRAMES</span>
+
+          <div className='frame-controls'>
+            <button
+              className='frame-btn save-btn'
               onClick={() => {
                 saveFrame();
-                playSound('frame-save');
+                playSound("frame-save");
               }}
-              title="Save current frame"
+              title='Save current frame'
             >
               ➕
             </button>
-            
-            <span className="frame-counter">
-              {frames.length > 0 ? `${currentFrameIndex + 1}/${frames.length}` : '📭 Empty'}
+
+            <span className='frame-counter'>
+              {frames.length > 0
+                ? `${currentFrameIndex + 1}/${frames.length}`
+                : "📭 Empty"}
             </span>
-            
-            <button 
-              className="frame-btn" 
+
+            <button
+              className='frame-btn'
               onClick={() => {
                 loadFrame(currentFrameIndex - 1);
-                playSound('click');
+                playSound("click");
               }}
               disabled={currentFrameIndex <= 0 || frames.length === 0}
-              title="Previous frame"
+              title='Previous frame'
             >
               ◀
             </button>
-            
-            <button 
-              className="frame-btn" 
+
+            <button
+              className='frame-btn'
               onClick={() => {
                 loadFrame(currentFrameIndex + 1);
-                playSound('click');
+                playSound("click");
               }}
-              disabled={currentFrameIndex >= frames.length - 1 || frames.length === 0}
-              title="Next frame"
+              disabled={
+                currentFrameIndex >= frames.length - 1 || frames.length === 0
+              }
+              title='Next frame'
             >
               ▶
             </button>
-            
-            <button 
-              className="frame-btn delete-btn" 
+
+            <button
+              className='frame-btn delete-btn'
               onClick={() => {
                 deleteFrame();
-                playSound('error');
+                playSound("error");
               }}
               disabled={frames.length === 0}
-              title="Delete current frame"
+              title='Delete current frame'
             >
               🗑
             </button>
           </div>
-          
-          <div className="animation-play-controls">
+
+          <div className='animation-play-controls'>
             {isAnimating ? (
-              <button className="play-btn stop" onClick={() => {
-                stopAnimation();
-                playSound('click');
-              }}>
+              <button
+                className='play-btn stop'
+                onClick={() => {
+                  stopAnimation();
+                  playSound("click");
+                }}
+              >
                 ⏹ STOP
               </button>
             ) : (
-              <button 
-                className={`play-btn play ${frames.length < 2 ? 'disabled' : ''}`} 
+              <button
+                className={`play-btn play ${frames.length < 2 ? "disabled" : ""}`}
                 onClick={() => {
                   playAnimation();
-                  playSound('success');
+                  playSound("success");
                 }}
                 disabled={frames.length < 2}
               >
-                {frames.length < 2 ? '⏸ NEED 2+ FRAMES' : `▶ PLAY (${frames.length} frames)`}
+                {frames.length < 2
+                  ? "⏸ NEED 2+ FRAMES"
+                  : `▶ PLAY (${frames.length} frames)`}
               </button>
             )}
-            
-            <button 
-              className="frame-btn clear-btn" 
+
+            <button
+              className='frame-btn clear-btn'
               onClick={() => {
                 clearFrames();
-                playSound('error');
+                playSound("error");
               }}
               disabled={frames.length === 0}
-              title="Clear all frames"
+              title='Clear all frames'
             >
               ✖ CLEAR
             </button>
           </div>
-          
+
           {frames.length === 0 && (
-            <div className="frame-helper">
+            <div className='frame-helper'>
               💡 Draw something, then click ➕ to save as a frame
             </div>
           )}
@@ -267,14 +299,12 @@ function App() {
 
         <GridControls gridSize={gridSize} resetGrid={resetGrid} />
 
-
-
-        <button className="export-btn" onClick={handleExport}>
+        <button className='export-btn' onClick={handleExport}>
           ⬇ DOWNLOAD PNG
         </button>
       </div>
 
-      <div className="canvas-container">
+      <div className='canvas-container'>
         {/* ===== UNDO/REDO BUTTONS - FLOATING OVER CANVAS ===== */}
         <UndoRedoButtons
           onUndo={undo}
@@ -282,8 +312,9 @@ function App() {
           canUndo={canUndo}
           canRedo={canRedo}
           onClear={clearCanvas}
+          saveStatus={saveStatus}
         />
-        
+
         <Canvas
           grid={grid}
           gridSize={gridSize}
@@ -296,8 +327,8 @@ function App() {
           setHoveredCell={setHoveredCell}
           paintCell={paintCell}
           floodFill={floodFill}
-          startStroke={startStroke}   
-          endStroke={endStroke}       
+          startStroke={startStroke}
+          endStroke={endStroke}
         />
       </div>
     </div>

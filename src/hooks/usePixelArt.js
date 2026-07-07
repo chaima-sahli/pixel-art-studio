@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 const PRESET_COLORS = [
   '#000000', '#ffffff', '#ff0000', '#00ff00',
@@ -7,14 +7,47 @@ const PRESET_COLORS = [
   '#ff6688', '#88ff66', '#6688ff', '#ffcc00',
 ];
 
+// ===== SAVE/LOAD KEYS =====
+const STORAGE_KEYS = {
+  GRID: 'pixelStudio_grid',
+  GRID_SIZE: 'pixelStudio_gridSize',
+  FRAMES: 'pixelStudio_frames',
+  CURRENT_FRAME: 'pixelStudio_currentFrame',
+};
+
 export function usePixelArt(initialSize = 16) {
-  // ===== EXISTING STATE =====
-  const [gridSize, setGridSize] = useState(initialSize);
-  const [grid, setGrid] = useState(() =>
-    Array.from({ length: initialSize }, () =>
-      Array(initialSize).fill('#ffffff')
-    )
-  );
+  // ===== LOAD FROM LOCALSTORAGE OR USE DEFAULTS =====
+  const loadSavedData = useCallback(() => {
+    try {
+      const savedGrid = localStorage.getItem(STORAGE_KEYS.GRID);
+      const savedSize = localStorage.getItem(STORAGE_KEYS.GRID_SIZE);
+      const savedFrames = localStorage.getItem(STORAGE_KEYS.FRAMES);
+      const savedFrameIndex = localStorage.getItem(STORAGE_KEYS.CURRENT_FRAME);
+
+      const size = savedSize ? parseInt(savedSize) : initialSize;
+      const grid = savedGrid ? JSON.parse(savedGrid) : 
+        Array.from({ length: size }, () => Array(size).fill('#ffffff'));
+      
+      const frames = savedFrames ? JSON.parse(savedFrames) : [];
+      const frameIndex = savedFrameIndex ? parseInt(savedFrameIndex) : 0;
+
+      return { grid, size, frames, frameIndex };
+    } catch (error) {
+      console.warn('Failed to load saved data:', error);
+      return {
+        grid: Array.from({ length: initialSize }, () => Array(initialSize).fill('#ffffff')),
+        size: initialSize,
+        frames: [],
+        frameIndex: 0,
+      };
+    }
+  }, [initialSize]);
+
+  const savedData = loadSavedData();
+
+  // ===== STATE =====
+  const [gridSize, setGridSize] = useState(savedData.size);
+  const [grid, setGrid] = useState(savedData.grid);
   const [currentColor, setCurrentColor] = useState('#000000');
   const [currentTool, setCurrentTool] = useState('pen');
   const [isDrawing, setIsDrawing] = useState(false);
@@ -27,16 +60,34 @@ export function usePixelArt(initialSize = 16) {
   const isInitialized = useRef(false);
   
   // ===== STROKE BATCHING =====
-  const strokeGrid = useRef(null); // Stores the current stroke state
+  const strokeGrid = useRef(null);
   const isStrokeActive = useRef(false);
 
   // ===== ANIMATION STATE =====
-  const [frames, setFrames] = useState([]);
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+  const [frames, setFrames] = useState(savedData.frames);
+  const [currentFrameIndex, setCurrentFrameIndex] = useState(savedData.frameIndex);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef(null);
 
   const cellSize = Math.floor(480 / gridSize);
+
+  // ===== SAVE TO LOCALSTORAGE =====
+  const saveToStorage = useCallback(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GRID, JSON.stringify(grid));
+      localStorage.setItem(STORAGE_KEYS.GRID_SIZE, String(gridSize));
+      localStorage.setItem(STORAGE_KEYS.FRAMES, JSON.stringify(frames));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_FRAME, String(currentFrameIndex));
+    } catch (error) {
+      console.warn('Failed to save to localStorage:', error);
+    }
+  }, [grid, gridSize, frames, currentFrameIndex]);
+
+  // ===== AUTO-SAVE ON CHANGE =====
+  useEffect(() => {
+    // Save whenever grid, gridSize, frames, or currentFrameIndex changes
+    saveToStorage();
+  }, [grid, gridSize, frames, currentFrameIndex, saveToStorage]);
 
   // ===== SAVE HISTORY =====
   const saveHistory = useCallback((newGrid) => {
@@ -46,7 +97,6 @@ export function usePixelArt(initialSize = 16) {
     const gridCopy = newGrid.map(row => [...row]);
     newHistory.push(gridCopy);
     
-    // Limit history to 50 steps
     if (newHistory.length > 50) {
       newHistory.shift();
     }
@@ -57,7 +107,6 @@ export function usePixelArt(initialSize = 16) {
 
   // ===== START STROKE =====
   const startStroke = useCallback(() => {
-    // Save current grid state before starting the stroke
     strokeGrid.current = grid.map(row => [...row]);
     isStrokeActive.current = true;
   }, [grid]);
@@ -65,7 +114,6 @@ export function usePixelArt(initialSize = 16) {
   // ===== END STROKE =====
   const endStroke = useCallback(() => {
     if (isStrokeActive.current && strokeGrid.current) {
-      // Only save if grid actually changed
       const hasChanged = JSON.stringify(grid) !== JSON.stringify(strokeGrid.current);
       if (hasChanged) {
         saveHistory(grid);
@@ -77,7 +125,6 @@ export function usePixelArt(initialSize = 16) {
 
   // ===== UNDO =====
   const undo = useCallback(() => {
-    // If a stroke is active, end it first
     if (isStrokeActive.current) {
       endStroke();
     }
@@ -106,27 +153,7 @@ export function usePixelArt(initialSize = 16) {
     }
   }, [history, historyIndex]);
 
-
-
-  // ! CLEAR CANVAS 
-  const clearCanvas = useCallback(() => {
-    // End any active stroke first
-    if (isStrokeActive.current) {
-      endStroke();
-    }
-    
-    // Create empty grid
-    const emptyGrid = Array.from({ length: gridSize }, () =>
-      Array(gridSize).fill('#ffffff')
-    );
-    
-    setGrid(emptyGrid);
-    saveHistory(emptyGrid);
-  }, [gridSize, saveHistory, endStroke]);
-
-
-
-  // ===== PAINT CELL (Modified for batching) =====
+  // ===== PAINT CELL =====
   const paintCell = useCallback((row, col) => {
     const newGrid = grid.map(row => [...row]);
     if (currentTool === 'pen') {
@@ -135,10 +162,9 @@ export function usePixelArt(initialSize = 16) {
       newGrid[row][col] = '#ffffff';
     }
     setGrid(newGrid);
-    // Don't save history here - will be saved on stroke end
   }, [grid, currentTool, currentColor]);
 
-  // ===== FLOOD FILL (Always saves immediately) =====
+  // ===== FLOOD FILL =====
   const floodFill = useCallback((row, col, newColor) => {
     const targetColor = grid[row][col];
     if (targetColor === newColor) return;
@@ -158,6 +184,20 @@ export function usePixelArt(initialSize = 16) {
     setGrid(newGrid);
     saveHistory(newGrid);
   }, [grid, gridSize, saveHistory]);
+
+  // ===== CLEAR CANVAS =====
+  const clearCanvas = useCallback(() => {
+    if (isStrokeActive.current) {
+      endStroke();
+    }
+    
+    const emptyGrid = Array.from({ length: gridSize }, () =>
+      Array(gridSize).fill('#ffffff')
+    );
+    
+    setGrid(emptyGrid);
+    saveHistory(emptyGrid);
+  }, [gridSize, saveHistory, endStroke]);
 
   // ===== RESET GRID =====
   const resetGrid = useCallback((newSize) => {
@@ -182,9 +222,8 @@ export function usePixelArt(initialSize = 16) {
     }
   }, [grid]);
 
-  // !ANIMATION FUNCTIONS 
+  // ===== ANIMATION FUNCTIONS =====
   const saveFrame = useCallback(() => {
-    // End any active stroke before saving frame
     if (isStrokeActive.current) {
       endStroke();
     }
@@ -195,7 +234,6 @@ export function usePixelArt(initialSize = 16) {
 
   const loadFrame = useCallback((index) => {
     if (index >= 0 && index < frames.length) {
-      // End any active stroke before loading frame
       if (isStrokeActive.current) {
         endStroke();
       }
@@ -221,7 +259,6 @@ export function usePixelArt(initialSize = 16) {
   const playAnimation = useCallback(() => {
     if (frames.length < 2) return;
     
-    // End any active stroke before playing animation
     if (isStrokeActive.current) {
       endStroke();
     }
@@ -252,10 +289,7 @@ export function usePixelArt(initialSize = 16) {
     }
   }, []);
 
-
-
   return {
-    // Existing
     grid,
     gridSize,
     cellSize,
@@ -270,8 +304,8 @@ export function usePixelArt(initialSize = 16) {
     paintCell,
     floodFill,
     resetGrid,
+    clearCanvas,
     PRESET_COLORS,
-    // Animation
     frames,
     currentFrameIndex,
     isAnimating,
@@ -282,16 +316,12 @@ export function usePixelArt(initialSize = 16) {
     playAnimation,
     stopAnimation,
     cleanup,
-    // Undo/Redo
     undo,
     redo,
     canUndo: historyIndex > 0,
     canRedo: historyIndex < history.length - 1,
     initialize,
-    // Stroke batching
     startStroke,
     endStroke,
-
-    clearCanvas,
   };
 }

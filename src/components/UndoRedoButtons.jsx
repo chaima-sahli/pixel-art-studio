@@ -1,26 +1,33 @@
-import { useState } from "react";
-import { useSound } from "../hooks/useSound";
-import { Modal } from "./Modal";
+import { useState } from 'react';
+import { useSound } from '../hooks/useSound';
+import { Modal } from './Modal';
 
-export function UndoRedoButtons({ onUndo, onRedo, canUndo, canRedo, onClear }) {
+export function UndoRedoButtons({ 
+  onUndo, 
+  onRedo, 
+  canUndo, 
+  canRedo,
+  onClear,
+  saveStatus,   
+}) {
   const { playSound } = useSound();
   const [showModal, setShowModal] = useState(false);
 
   const handleUndo = () => {
     if (canUndo) {
       onUndo();
-      playSound("click");
+      playSound('click');
     }
   };
 
   const handleRedo = () => {
     if (canRedo) {
       onRedo();
-      playSound("click");
+      playSound('click');
     }
   };
 
-const handleClearClick = () => {
+  const handleClearClick = () => {
     playSound('click');
     setShowModal(true);
   };
@@ -36,7 +43,7 @@ const handleClearClick = () => {
     setShowModal(false);
   };
 
-return (
+  return (
     <>
       <div className="undo-redo-container">
         <button
@@ -59,7 +66,6 @@ return (
           <span className="undo-redo-label">REDO</span>
         </button>
 
-        {/* ===== CLEAR BUTTON - SEPARATOR + CLEAR ===== */}
         <div className="undo-redo-divider"></div>
         
         <button
@@ -70,6 +76,12 @@ return (
           <span className="undo-redo-icon">🗑</span>
           <span className="undo-redo-label">CLEAR</span>
         </button>
+
+        {/* ===== SAVE STATUS INDICATOR ===== */}
+        <div className="save-status">
+          <span className="save-status-icon">💾</span>
+          <span className="save-status-text">{saveStatus}</span>
+        </div>
       </div>
 
       <Modal
@@ -89,5 +101,4 @@ return (
       />
     </>
   );
-
 }

@@ -1258,3 +1258,49 @@ body {
     gap: 3px;
   }
 }
+
+/* ===== SAVE STATUS INDICATOR ===== */
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(30, 25, 20, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(131, 148, 254, 0.2);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  color: #8394FE;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.save-status-icon {
+  font-size: 10px;
+}
+
+.save-status-text {
+  color: #8394FE;
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+  .save-status {
+    padding: 3px 8px;
+    font-size: 5px;
+  }
+  
+  .save-status-icon {
+    font-size: 8px;
+  }
+  
+  .save-status-text {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .save-status {
+    padding: 2px 6px;
+  }
+}
