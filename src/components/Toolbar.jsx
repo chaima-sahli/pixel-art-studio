@@ -4,6 +4,7 @@ const TOOLS = [
   { id: 'pen', label: '✏️', title: 'Pen (P)' },
   { id: 'eraser', label: '🧹', title: 'Eraser (E)' },
   { id: 'fill', label: '🪣', title: 'Fill (F)' },
+  { id: 'eyedropper', label: '💉', title: 'Eyedropper (I)' },
 ];
 
 export function Toolbar({ currentTool, setCurrentTool }) {

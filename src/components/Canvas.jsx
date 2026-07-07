@@ -14,7 +14,8 @@ export function Canvas({
   paintCell,
   floodFill,
   startStroke,   
-  endStroke,     
+  endStroke,   
+  eyedropper,   
 }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -78,6 +79,16 @@ export function Canvas({
     setIsDrawing(true);
     const cell = getCellFromMouse(e);
     if (cell) {
+      // ! EYEDROPPER TOOL 
+      if (currentTool === 'eyedropper') {
+        const color = eyedropper(cell.row, cell.col);
+        if (color) {
+          playSound('click');
+        }
+        setIsDrawing(false);
+        return;
+      }
+
       if (currentTool === 'fill') {
         floodFill(cell.row, cell.col, currentColor);
         playSound('fill');
@@ -96,7 +107,7 @@ export function Canvas({
   const handleMouseMove = (e) => {
     const cell = getCellFromMouse(e);
     setHoveredCell(cell);
-    if (isDrawing && currentTool !== 'fill' && cell) {
+    if (isDrawing && currentTool !== 'fill' && currentTool !== 'eyedropper' && cell) {
       paintCell(cell.row, cell.col);
       // No sound on drag
     }
@@ -105,7 +116,7 @@ export function Canvas({
   const handleMouseUp = () => {
     setIsDrawing(false);
     // End the stroke and save to history
-    if (currentTool !== 'fill') {
+    if (currentTool !== 'fill' && currentTool !== 'eyedropper') {
       endStroke();
     }
     hasPlayedSound.current = false;
@@ -115,10 +126,18 @@ export function Canvas({
     setIsDrawing(false);
     setHoveredCell(null);
     // End the stroke and save to history
-    if (currentTool !== 'fill') {
+    if (currentTool !== 'fill' && currentTool !== 'eyedropper') {
       endStroke();
     }
     hasPlayedSound.current = false;
+  };
+
+    // ! EYEDROPPER CURSOR STYLE 
+  const getCursorStyle = () => {
+    if (currentTool === 'eyedropper') {
+      return 'crosshair';
+    }
+    return 'crosshair';
   };
 
   return (
@@ -132,7 +151,7 @@ export function Canvas({
       onMouseLeave={handleMouseLeave}
       style={{
         display: 'block',
-        cursor: 'crosshair',
+        cursor: getCursorStyle(),
         backgroundColor: '#1a1a2e',
         borderRadius: '4px',
         width: '100%',

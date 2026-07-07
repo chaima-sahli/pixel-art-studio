@@ -289,6 +289,18 @@ export function usePixelArt(initialSize = 16) {
     }
   }, []);
 
+
+
+  // ===== EYEDROPPER =====
+const eyedropper = useCallback((row, col) => {
+  if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+    const color = grid[row][col];
+    setCurrentColor(color);
+    return color;
+  }
+  return null;
+}, [grid, gridSize, setCurrentColor]);
+
   return {
     grid,
     gridSize,
@@ -323,5 +335,6 @@ export function usePixelArt(initialSize = 16) {
     initialize,
     startStroke,
     endStroke,
+    eyedropper
   };
 }

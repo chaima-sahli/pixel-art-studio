@@ -1379,3 +1379,17 @@ body {
   margin-top: -4px;
   font-family: 'Press Start 2P', monospace;
 }
+
+
+/* ===== EYEDROPPER TOOL ===== */
+/* Visual indicator when eyedropper is active */
+.tool-btn[data-tool="eyedropper"].active {
+  background: #8394FE;
+  border-color: #FEFCFF;
+  box-shadow: 0 0 30px rgba(131, 148, 254, 0.3);
+}
+
+/* Cursor style override for canvas with eyedropper */
+.canvas-container.eyedropper-active #pixel-canvas {
+  cursor: crosshair;
+}

@@ -49,6 +49,7 @@ function App() {
     startStroke,
     endStroke,
     clearCanvas,
+    eyedropper,
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -162,6 +163,10 @@ function App() {
       } else if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         setCurrentTool('fill');
+        playSound('click');
+      } else if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault();
+        setCurrentTool('eyedropper');
         playSound('click');
       }
 
@@ -396,6 +401,7 @@ function App() {
           floodFill={floodFill}
           startStroke={startStroke}
           endStroke={endStroke}
+          eyedropper={eyedropper}
         />
       </div>
     </div>
