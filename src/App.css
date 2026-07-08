@@ -300,7 +300,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 6px;
+  padding-top: 8px;
   border-top: 2px solid #8394FE;
 }
 
@@ -311,35 +311,62 @@ body {
 }
 
 .custom-color-input {
-  width: 32px;
-  height: 32px;
-  border: 2px solid #8394FE;
-  border-radius: 4px;
-  cursor: pointer;
-  background: transparent;
-  padding: 2px;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 !important;
+  border: 3px solid #8394FE !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
 }
 
+.custom-color-input:hover {
+  transform: scale(1.05);
+  border-color: #F3ABFF !important;
+  box-shadow: 0 0 20px rgba(243, 171, 255, 0.2);
+}
+
+
 .custom-color-input::-webkit-color-swatch-wrapper {
-  padding: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
 }
 
 .custom-color-input::-webkit-color-swatch {
-  border: none;
-  border-radius: 3px;
+  border: none !important;
+  border-radius: 3px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
+.custom-color-input::-moz-color-swatch {
+  border: none !important;
+  border-radius: 3px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+
 .custom-color-hex {
-  color: #8394FE;
+  font-family: 'Press Start 2P', monospace;
   font-size: 7px;
-  margin-left: auto;
-  background: #3E39DD;
-  padding: 3px 8px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
   border-radius: 4px;
-  border: 1px solid #8394FE;
-  max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 2px solid #8394FE;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: center;
 }
 
 /* ===== ANIMATION SECTION ===== */

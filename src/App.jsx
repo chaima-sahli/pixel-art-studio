@@ -11,7 +11,7 @@ import './App.css';
 
 function App() {
   const { playSound } = useSound();
-  const [saveStatus, setSaveStatus] = useState('💾 Saved');
+  const [saveStatus, setSaveStatus] = useState(' Saved');
   const saveTimerRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -61,9 +61,9 @@ function App() {
   useEffect(() => {
     if (prevGridRef.current !== grid) {
       const timeoutId = setTimeout(() => {
-        setSaveStatus('💾 Saving...');
+        setSaveStatus(' Saving...');
         saveTimerRef.current = setTimeout(() => {
-          setSaveStatus('💾 Saved');
+          setSaveStatus(' Saved');
         }, 500);
       }, 0);
 
