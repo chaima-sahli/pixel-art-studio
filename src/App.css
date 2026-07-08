@@ -186,27 +186,32 @@ body {
 /* ===== TOOLBAR ===== */
 .toolbar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
+  grid-template-columns: repeat(4, 1fr);  
+  gap: 4px;
   background: #3E39DD;
-  padding: 10px;
-  border-radius: 10px;
-  border: 3px solid #8394FE;
+  padding: 6px;
+  border-radius: 8px;
+  border: 2px solid #8394FE;
   flex-shrink: 0;
 }
 
 .tool-btn {
-  font-size: 20px;
-  padding: 10px;
+  font-size: 16px;          
+  padding: 6px 4px;        
   background: #5550E2;
-  border: 3px solid #8394FE;
-  border-radius: 8px;
+  border: 2px solid #8394FE;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
   color: #FEFCFF;
   font-family: 'Press Start 2P', monospace;
   line-height: 1;
   text-shadow: 0 0 10px rgba(243, 171, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
 }
 
 .tool-btn:hover {
@@ -231,7 +236,7 @@ body {
 
 .tool-btn span {
   display: block;
-  font-size: 6px;
+  font-size: 5px;
   color: #8394FE;
   margin-top: 2px;
   letter-spacing: 1px;
