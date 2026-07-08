@@ -50,6 +50,7 @@ function App() {
     endStroke,
     clearCanvas,
     eyedropper,
+    colorHistory,
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -241,6 +242,8 @@ function App() {
           colors={PRESET_COLORS}
           currentColor={currentColor}
           setCurrentColor={setCurrentColor}
+          colorHistory={colorHistory}
+          maxHistory={8}
         />
 
         {/* ===== ANIMATION CONTROLS ===== */}

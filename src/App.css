@@ -1425,3 +1425,47 @@ body {
 .canvas-container.eyedropper-active #pixel-canvas {
   cursor: crosshair;
 }
+
+/* ===== COLOR HISTORY ===== */
+.history-divider {
+  border-top: 2px solid rgba(131, 148, 254, 0.2);
+  margin: 8px 0 4px 0;
+}
+
+.history-label {
+  color: #8394FE;
+  font-size: 6px;
+  display: block;
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.history-grid {
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.history-swatch {
+  min-height: 20px !important;
+  border-width: 2px !important;
+  border-radius: 3px !important;
+}
+
+.history-swatch.empty {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.history-swatch:hover:not(.empty) {
+  transform: scale(1.1) !important;
+  border-color: #F3ABFF !important;
+  box-shadow: 0 0 15px rgba(243, 171, 255, 0.2) !important;
+}
+
+.history-swatch.active {
+  border-color: #FEFCFF !important;
+  box-shadow: 0 0 20px rgba(243, 171, 255, 0.25) !important;
+  transform: scale(1.05) !important;
+}

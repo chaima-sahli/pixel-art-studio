@@ -1,6 +1,12 @@
 import { useSound } from '../hooks/useSound';
 
-export function ColorPalette({ colors, currentColor, setCurrentColor }) {
+export function ColorPalette({ 
+  colors, 
+  currentColor, 
+  setCurrentColor,
+  colorHistory = [],
+  maxHistory = 8  // ← ADD with default
+}) {
   const { playSound } = useSound();
 
   const handleColorSelect = (color) => {
@@ -17,10 +23,13 @@ export function ColorPalette({ colors, currentColor, setCurrentColor }) {
     playSound('click');
   };
 
+  const hasHistory = colorHistory.length > 0;
+
   return (
     <div className="color-section">
       <span className="color-section-label">🎨 PALETTE</span>
       
+      {/* ===== PRESET COLORS (8) ===== */}
       <div className="color-grid">
         {colors.map((color) => (
           <div
@@ -33,6 +42,38 @@ export function ColorPalette({ colors, currentColor, setCurrentColor }) {
         ))}
       </div>
 
+      {/* ===== COLOR HISTORY (8) ===== */}
+      {hasHistory && (
+        <>
+          <div className="history-divider"></div>
+          <span className="history-label">📋 RECENT</span>
+          <div className="color-grid history-grid">
+            {colorHistory.map((color) => (
+              <div
+                key={color}
+                className={`color-swatch history-swatch ${currentColor === color ? 'active' : ''}`}
+                onClick={() => handleColorSelect(color)}
+                style={{ backgroundColor: color }}
+                title={`Recent: ${color}`}
+              />
+            ))}
+            {/* Fill remaining empty slots with placeholders */}
+            {Array.from({ length: maxHistory - colorHistory.length }).map((_, i) => (
+              <div
+                key={`empty-${i}`}
+                className="color-swatch history-swatch empty"
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '2px dashed rgba(131, 148, 254, 0.2)',
+                  cursor: 'default',
+                }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* ===== CUSTOM COLOR ===== */}
       <div className="custom-color-row">
         <span className="custom-color-label">CUSTOM</span>
         
@@ -45,7 +86,7 @@ export function ColorPalette({ colors, currentColor, setCurrentColor }) {
           style={{
             width: '32px',
             height: '32px',
-            border: `3px solid ${colors.includes(currentColor) ? '#8394FE' : '#FEFCFF'}`,
+            border: `3px solid ${colors.includes(currentColor) || colorHistory.includes(currentColor) ? '#8394FE' : '#FEFCFF'}`,
             borderRadius: '6px',
             cursor: 'pointer',
             background: 'transparent',

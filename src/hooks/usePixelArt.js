@@ -1,10 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+// ===== PRESET COLORS (8) =====
 const PRESET_COLORS = [
   '#000000', '#ffffff', '#ff0000', '#00ff00',
   '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
-  '#ff8800', '#8800ff', '#888888', '#553322',
-  '#ff6688', '#88ff66', '#6688ff', '#ffcc00',
 ];
 
 // ===== SAVE/LOAD KEYS =====
@@ -44,6 +43,9 @@ export function usePixelArt(initialSize = 16) {
   }, [initialSize]);
 
   const savedData = loadSavedData();
+
+  const MAX_HISTORY = 8;
+
 
   // ===== STATE =====
   const [gridSize, setGridSize] = useState(savedData.size);
@@ -301,6 +303,60 @@ const eyedropper = useCallback((row, col) => {
   return null;
 }, [grid, gridSize, setCurrentColor]);
 
+
+
+// Lazy initialization - runs once when hook is first called
+const getInitialHistory = () => {
+  try {
+    const saved = localStorage.getItem('pixelStudio_colorHistory');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.slice(0, MAX_HISTORY);
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load color history:', error);
+  }
+  // Default: first 4 preset colors
+  return PRESET_COLORS.slice(0, 4);
+};
+
+// Inside the hook:
+const [colorHistory, setColorHistory] = useState(getInitialHistory);
+const historyInitialized = useRef(false);
+
+// Add color to history
+const addToHistory = useCallback((color) => {
+  setColorHistory(prev => {
+    const filtered = prev.filter(c => c !== color);
+    const newHistory = [color, ...filtered];
+    return newHistory.slice(0, MAX_HISTORY);
+  });
+}, []);
+
+// Save to localStorage when history changes (after initialization)
+useEffect(() => {
+  if (historyInitialized.current) {
+    try {
+      localStorage.setItem('pixelStudio_colorHistory', JSON.stringify(colorHistory));
+    } catch (error) {
+      console.warn('Failed to save color history:', error);
+    }
+  }
+}, [colorHistory]);
+
+// Mark as initialized after first render
+useEffect(() => {
+  historyInitialized.current = true;
+}, []);
+
+// Set current color with history
+const setCurrentColorWithHistory = useCallback((color) => {
+  setCurrentColor(color);
+  addToHistory(color);
+}, [addToHistory]);
+
   return {
     grid,
     gridSize,
@@ -309,7 +365,6 @@ const eyedropper = useCallback((row, col) => {
     currentTool,
     isDrawing,
     hoveredCell,
-    setCurrentColor,
     setCurrentTool,
     setIsDrawing,
     setHoveredCell,
@@ -335,6 +390,10 @@ const eyedropper = useCallback((row, col) => {
     initialize,
     startStroke,
     endStroke,
-    eyedropper
+    eyedropper,
+    colorHistory,
+    setCurrentColor: setCurrentColorWithHistory, 
+    addToHistory,
+
   };
 }
