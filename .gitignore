@@ -40,3 +40,4 @@ vanilla-version/*.log
 
 # Vite specific (if using Vite)
 .vite/
+.vercel
