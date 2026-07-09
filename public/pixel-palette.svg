@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Pixel art paint palette -->
+  <rect x="4" y="8" width="24" height="16" rx="2" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
+  <rect x="8" y="12" width="4" height="4" fill="#ff4444"/>
+  <rect x="14" y="12" width="4" height="4" fill="#44ff44"/>
+  <rect x="20" y="12" width="4" height="4" fill="#4444ff"/>
+  <rect x="11" y="18" width="4" height="4" fill="#ffff44"/>
+  <rect x="17" y="18" width="4" height="4" fill="#ff44ff"/>
+  <!-- Thumb hole -->
+  <rect x="24" y="10" width="4" height="6" fill="#333"/>
+</svg>
