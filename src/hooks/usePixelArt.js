@@ -14,6 +14,8 @@ const STORAGE_KEYS = {
   CURRENT_FRAME: 'pixelStudio_currentFrame',
 };
 
+const MAX_HISTORY = 8;
+
 export function usePixelArt(initialSize = 16) {
   // ===== LOAD FROM LOCALSTORAGE OR USE DEFAULTS =====
   const loadSavedData = useCallback(() => {
@@ -44,13 +46,10 @@ export function usePixelArt(initialSize = 16) {
 
   const savedData = loadSavedData();
 
-  const MAX_HISTORY = 8;
-
-
   // ===== STATE =====
   const [gridSize, setGridSize] = useState(savedData.size);
   const [grid, setGrid] = useState(savedData.grid);
-  const [currentColor, setCurrentColor] = useState('#000000');
+  const [currentColor, setCurrentColorState] = useState('#000000');
   const [currentTool, setCurrentTool] = useState('pen');
   const [isDrawing, setIsDrawing] = useState(false);
   const [hoveredCell, setHoveredCell] = useState(null);
@@ -71,6 +70,25 @@ export function usePixelArt(initialSize = 16) {
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef(null);
 
+  // ===== COLOR HISTORY =====
+  const getInitialHistory = () => {
+    try {
+      const saved = localStorage.getItem('pixelStudio_colorHistory');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, MAX_HISTORY);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load color history:', error);
+    }
+    return PRESET_COLORS.slice(0, 4);
+  };
+
+  const [colorHistory, setColorHistory] = useState(getInitialHistory);
+  const historyInitialized = useRef(false);
+
   const cellSize = Math.floor(480 / gridSize);
 
   // ===== SAVE TO LOCALSTORAGE =====
@@ -80,18 +98,18 @@ export function usePixelArt(initialSize = 16) {
       localStorage.setItem(STORAGE_KEYS.GRID_SIZE, String(gridSize));
       localStorage.setItem(STORAGE_KEYS.FRAMES, JSON.stringify(frames));
       localStorage.setItem(STORAGE_KEYS.CURRENT_FRAME, String(currentFrameIndex));
+      localStorage.setItem('pixelStudio_colorHistory', JSON.stringify(colorHistory));
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);
     }
-  }, [grid, gridSize, frames, currentFrameIndex]);
+  }, [grid, gridSize, frames, currentFrameIndex, colorHistory]);
 
   // ===== AUTO-SAVE ON CHANGE =====
   useEffect(() => {
-    // Save whenever grid, gridSize, frames, or currentFrameIndex changes
     saveToStorage();
-  }, [grid, gridSize, frames, currentFrameIndex, saveToStorage]);
+  }, [grid, gridSize, frames, currentFrameIndex, colorHistory, saveToStorage]);
 
-  // ===== SAVE HISTORY =====
+  // ===== SAVE UNDO HISTORY =====
   const saveHistory = useCallback((newGrid) => {
     if (isUndoRedo.current) return;
     
@@ -224,6 +242,37 @@ export function usePixelArt(initialSize = 16) {
     }
   }, [grid]);
 
+  // ===== COLOR HISTORY FUNCTIONS =====
+  const addToHistory = useCallback((color) => {
+    setColorHistory(prev => {
+      const filtered = prev.filter(c => c !== color);
+      const newHistory = [color, ...filtered];
+      return newHistory.slice(0, MAX_HISTORY);
+    });
+  }, []);
+
+  // ===== SET CURRENT COLOR (NO HISTORY) =====
+  const setCurrentColor = useCallback((color) => {
+    setCurrentColorState(color);
+  }, []);
+
+  // ===== USE COLOR ON CANVAS (with history) =====
+  const useColor = useCallback((color) => {
+    setCurrentColorState(color);
+    addToHistory(color);
+  }, [addToHistory]);
+
+  // ===== EYEDROPPER =====
+  const eyedropper = useCallback((row, col) => {
+    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+      const color = grid[row][col];
+      setCurrentColorState(color);
+      addToHistory(color);
+      return color;
+    }
+    return null;
+  }, [grid, gridSize, addToHistory]);
+
   // ===== ANIMATION FUNCTIONS =====
   const saveFrame = useCallback(() => {
     if (isStrokeActive.current) {
@@ -291,71 +340,20 @@ export function usePixelArt(initialSize = 16) {
     }
   }, []);
 
-
-
-  // ===== EYEDROPPER =====
-const eyedropper = useCallback((row, col) => {
-  if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
-    const color = grid[row][col];
-    setCurrentColor(color);
-    return color;
-  }
-  return null;
-}, [grid, gridSize, setCurrentColor]);
-
-
-
-// Lazy initialization - runs once when hook is first called
-const getInitialHistory = () => {
-  try {
-    const saved = localStorage.getItem('pixelStudio_colorHistory');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.slice(0, MAX_HISTORY);
+  // ===== SAVE COLOR HISTORY TO LOCALSTORAGE =====
+  useEffect(() => {
+    if (historyInitialized.current) {
+      try {
+        localStorage.setItem('pixelStudio_colorHistory', JSON.stringify(colorHistory));
+      } catch (error) {
+        console.warn('Failed to save color history:', error);
       }
     }
-  } catch (error) {
-    console.warn('Failed to load color history:', error);
-  }
-  // Default: first 4 preset colors
-  return PRESET_COLORS.slice(0, 4);
-};
+  }, [colorHistory]);
 
-// Inside the hook:
-const [colorHistory, setColorHistory] = useState(getInitialHistory);
-const historyInitialized = useRef(false);
-
-// Add color to history
-const addToHistory = useCallback((color) => {
-  setColorHistory(prev => {
-    const filtered = prev.filter(c => c !== color);
-    const newHistory = [color, ...filtered];
-    return newHistory.slice(0, MAX_HISTORY);
-  });
-}, []);
-
-// Save to localStorage when history changes (after initialization)
-useEffect(() => {
-  if (historyInitialized.current) {
-    try {
-      localStorage.setItem('pixelStudio_colorHistory', JSON.stringify(colorHistory));
-    } catch (error) {
-      console.warn('Failed to save color history:', error);
-    }
-  }
-}, [colorHistory]);
-
-// Mark as initialized after first render
-useEffect(() => {
-  historyInitialized.current = true;
-}, []);
-
-// Set current color with history
-const setCurrentColorWithHistory = useCallback((color) => {
-  setCurrentColor(color);
-  addToHistory(color);
-}, [addToHistory]);
+  useEffect(() => {
+    historyInitialized.current = true;
+  }, []);
 
   return {
     grid,
@@ -392,8 +390,8 @@ const setCurrentColorWithHistory = useCallback((color) => {
     endStroke,
     eyedropper,
     colorHistory,
-    setCurrentColor: setCurrentColorWithHistory, 
+    setCurrentColor,     
+    onColorUsed: useColor,            
     addToHistory,
-
   };
 }

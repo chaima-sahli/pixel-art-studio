@@ -1,3 +1,4 @@
+// src/components/Canvas.jsx
 import { useRef, useEffect } from 'react';
 import { useSound } from '../hooks/useSound';
 
@@ -13,9 +14,10 @@ export function Canvas({
   setHoveredCell,
   paintCell,
   floodFill,
-  startStroke,   
-  endStroke,   
-  eyedropper,   
+  startStroke,
+  endStroke,
+  eyedropper,
+  onColorUsed,  // ← This is the function passed from parent
 }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -49,7 +51,12 @@ export function Canvas({
 
     if (hoveredCell && !isDrawing) {
       const { row, col } = hoveredCell;
-      const previewColor = currentTool === 'eraser' ? '#ffffff' : currentColor;
+      let previewColor = currentTool === 'eraser' ? '#ffffff' : currentColor;
+      
+      if (currentTool === 'eyedropper') {
+        previewColor = grid[row]?.[col] || '#ffffff';
+      }
+      
       ctx.fillStyle = previewColor;
       ctx.globalAlpha = 0.4;
       ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
@@ -71,15 +78,13 @@ export function Canvas({
     return null;
   };
 
-  // Track if sound has been played for this click
   const hasPlayedSound = useRef(false);
 
-  // Mouse handlers
   const handleMouseDown = (e) => {
     setIsDrawing(true);
     const cell = getCellFromMouse(e);
     if (cell) {
-      // ! EYEDROPPER TOOL 
+      // EYEDROPPER
       if (currentTool === 'eyedropper') {
         const color = eyedropper(cell.row, cell.col);
         if (color) {
@@ -88,18 +93,24 @@ export function Canvas({
         setIsDrawing(false);
         return;
       }
-
+      
+      // FLOOD FILL
       if (currentTool === 'fill') {
         floodFill(cell.row, cell.col, currentColor);
         playSound('fill');
-      } else {
-        // Start a new stroke (for undo batching)
-        startStroke();
-        paintCell(cell.row, cell.col);
-        if (!hasPlayedSound.current) {
-          playSound('paint');
-          hasPlayedSound.current = true;
-        }
+        return;
+      }
+      
+      // PEN / ERASER
+      startStroke();
+      paintCell(cell.row, cell.col);
+      // ✅ Add color to history when drawing
+      if (onColorUsed) {
+        onColorUsed(currentColor);
+      }
+      if (!hasPlayedSound.current) {
+        playSound('paint');
+        hasPlayedSound.current = true;
       }
     }
   };
@@ -107,15 +118,14 @@ export function Canvas({
   const handleMouseMove = (e) => {
     const cell = getCellFromMouse(e);
     setHoveredCell(cell);
+    
     if (isDrawing && currentTool !== 'fill' && currentTool !== 'eyedropper' && cell) {
       paintCell(cell.row, cell.col);
-      // No sound on drag
     }
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
-    // End the stroke and save to history
     if (currentTool !== 'fill' && currentTool !== 'eyedropper') {
       endStroke();
     }
@@ -125,19 +135,10 @@ export function Canvas({
   const handleMouseLeave = () => {
     setIsDrawing(false);
     setHoveredCell(null);
-    // End the stroke and save to history
     if (currentTool !== 'fill' && currentTool !== 'eyedropper') {
       endStroke();
     }
     hasPlayedSound.current = false;
-  };
-
-    // ! EYEDROPPER CURSOR STYLE 
-  const getCursorStyle = () => {
-    if (currentTool === 'eyedropper') {
-      return 'crosshair';
-    }
-    return 'crosshair';
   };
 
   return (
@@ -151,7 +152,7 @@ export function Canvas({
       onMouseLeave={handleMouseLeave}
       style={{
         display: 'block',
-        cursor: getCursorStyle(),
+        cursor: currentTool === 'eyedropper' ? 'crosshair' : 'crosshair',
         backgroundColor: '#1a1a2e',
         borderRadius: '4px',
         width: '100%',

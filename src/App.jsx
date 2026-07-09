@@ -51,6 +51,7 @@ function App() {
     clearCanvas,
     eyedropper,
     colorHistory,
+    onColorUsed, 
   } = usePixelArt(16);
 
   // Initialize history after first render
@@ -405,6 +406,7 @@ function App() {
           startStroke={startStroke}
           endStroke={endStroke}
           eyedropper={eyedropper}
+          onColorUsed={onColorUsed}
         />
       </div>
     </div>

@@ -1,26 +1,26 @@
-import { useSound } from '../hooks/useSound';
+import { useSound } from "../hooks/useSound";
 
-export function ColorPalette({ 
-  colors, 
-  currentColor, 
-  setCurrentColor,
+export function ColorPalette({
+  colors,
+  currentColor,
+  setCurrentColor,   
   colorHistory = [],
-  maxHistory = 8  // ← ADD with default
+  maxHistory = 8,
 }) {
   const { playSound } = useSound();
 
   const handleColorSelect = (color) => {
-    setCurrentColor(color);
-    playSound('click');
+    setCurrentColor(color);  
+    playSound("click");
   };
 
   const handleCustomColorChange = (e) => {
     const color = e.target.value;
-    setCurrentColor(color);
+    setCurrentColor(color);  
   };
 
   const handleCustomColorClick = () => {
-    playSound('click');
+    playSound("click");
   };
 
   const hasHistory = colorHistory.length > 0;
@@ -28,13 +28,13 @@ export function ColorPalette({
   return (
     <div className="color-section">
       <span className="color-section-label">🎨 PALETTE</span>
-      
-      {/* ===== PRESET COLORS (8) ===== */}
+
+      {/* PRESET COLORS */}
       <div className="color-grid">
         {colors.map((color) => (
           <div
             key={color}
-            className={`color-swatch ${currentColor === color ? 'active' : ''}`}
+            className={`color-swatch ${currentColor === color ? "active" : ""}`}
             onClick={() => handleColorSelect(color)}
             style={{ backgroundColor: color }}
             title={color}
@@ -42,7 +42,7 @@ export function ColorPalette({
         ))}
       </div>
 
-      {/* ===== COLOR HISTORY (8) ===== */}
+      {/* COLOR HISTORY */}
       {hasHistory && (
         <>
           <div className="history-divider"></div>
@@ -51,32 +51,33 @@ export function ColorPalette({
             {colorHistory.map((color) => (
               <div
                 key={color}
-                className={`color-swatch history-swatch ${currentColor === color ? 'active' : ''}`}
+                className={`color-swatch history-swatch ${currentColor === color ? "active" : ""}`}
                 onClick={() => handleColorSelect(color)}
                 style={{ backgroundColor: color }}
                 title={`Recent: ${color}`}
               />
             ))}
-            {/* Fill remaining empty slots with placeholders */}
-            {Array.from({ length: maxHistory - colorHistory.length }).map((_, i) => (
-              <div
-                key={`empty-${i}`}
-                className="color-swatch history-swatch empty"
-                style={{
-                  backgroundColor: 'transparent',
-                  border: '2px dashed rgba(131, 148, 254, 0.2)',
-                  cursor: 'default',
-                }}
-              />
-            ))}
+            {Array.from({ length: maxHistory - colorHistory.length }).map(
+              (_, i) => (
+                <div
+                  key={`empty-${i}`}
+                  className="color-swatch history-swatch empty"
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "2px dashed rgba(131, 148, 254, 0.2)",
+                    cursor: "default",
+                  }}
+                />
+              )
+            )}
           </div>
         </>
       )}
 
-      {/* ===== CUSTOM COLOR ===== */}
+      {/* CUSTOM COLOR */}
       <div className="custom-color-row">
         <span className="custom-color-label">CUSTOM</span>
-        
+
         <input
           type="color"
           className="custom-color-input"
@@ -84,30 +85,34 @@ export function ColorPalette({
           onChange={handleCustomColorChange}
           onClick={handleCustomColorClick}
           style={{
-            width: '32px',
-            height: '32px',
-            border: `3px solid ${colors.includes(currentColor) || colorHistory.includes(currentColor) ? '#8394FE' : '#FEFCFF'}`,
-            borderRadius: '6px',
-            cursor: 'pointer',
-            background: 'transparent',
-            padding: '2px',
-            position: 'relative',
-            display: 'inline-block',
+            width: "32px",
+            height: "32px",
+            border: `3px solid ${
+              colors.includes(currentColor) || colorHistory.includes(currentColor)
+                ? "#8394FE"
+                : "#FEFCFF"
+            }`,
+            borderRadius: "6px",
+            cursor: "pointer",
+            background: "transparent",
+            padding: "2px",
+            position: "relative",
+            display: "inline-block",
           }}
         />
-        
-        <span 
+
+        <span
           className="custom-color-hex"
           style={{
             backgroundColor: currentColor,
-            color: isLightColor(currentColor) ? '#000000' : '#FFFFFF',
-            border: '2px solid #8394FE',
-            padding: '4px 10px',
-            borderRadius: '4px',
+            color: isLightColor(currentColor) ? "#000000" : "#FFFFFF",
+            border: "2px solid #8394FE",
+            padding: "4px 10px",
+            borderRadius: "4px",
             fontFamily: "'Press Start 2P', monospace",
-            fontSize: '7px',
-            letterSpacing: '1px',
-            transition: 'all 0.2s ease',
+            fontSize: "7px",
+            letterSpacing: "1px",
+            transition: "all 0.2s ease",
           }}
         >
           {currentColor.toUpperCase()}
@@ -117,9 +122,8 @@ export function ColorPalette({
   );
 }
 
-// Helper function to determine if color is light or dark
 function isLightColor(hex) {
-  const h = hex.replace('#', '');
+  const h = hex.replace("#", "");
   const r = parseInt(h.substring(0, 2), 16);
   const g = parseInt(h.substring(2, 4), 16);
   const b = parseInt(h.substring(4, 6), 16);
