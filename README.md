@@ -23,7 +23,7 @@
   <br />
   <br />
   
-  <img width="1920" height="1080" alt="Pixel Art Studio Screenshot" src="https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=Pixel+Art+Studio+Screenshot" />
+  
 </div>
 
 ---
