@@ -23,7 +23,7 @@
   <br />
   <br />
   
-  <img width="1920" height="1080" alt="Pixel Art Studio Screenshot" src="https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=Pixel+Art+Studio+Screenshot" />
+  
 </div>
 
 ---
@@ -45,22 +45,6 @@ Try it here!: https://pixel-art-maker-studio.vercel.app
 
 
 ---
-
-## ✨ Features
-| Feature | Description |
-|---------|-------------|
-| 🖌️ **Drawing Tools** | Pen, Eraser, Flood Fill (Paint Bucket) |
-| 🎨 **Color System** | 8 Preset Colors + Custom Picker + 8 Recent Colors (History) |
-| 📐 **Grid Sizes** | 16×16, 32×32, 64×64 |
-| ↩️ **Undo/Redo** | Ctrl+Z, Ctrl+Y with stroke batching |
-| 🎬 **Animation** | Frame management with Play/Stop |
-| 💾 **Export** | PNG Download + Animated GIF Export |
-| 🗑️ **Clear Canvas** | With confirmation modal |
-| 💾 **Auto-save** | localStorage with save status indicator |
-| ⌨️ **Keyboard Shortcuts** | P, E, F, I, 1-8, Shift+1-8, Ctrl+Z, Ctrl+Y |
-| 🔊 **Sound Effects** | 8-bit retro sounds |
-| 💉 **Eyedropper** | Pick colors directly from canvas |
-| 🎮 **Retro UI** | RGB Arcade/TV Screen aesthetic |
 
 ### 🎨 Drawing Tools
 
