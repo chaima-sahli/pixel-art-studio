@@ -8,7 +8,7 @@ export function UndoRedoButtons({
   canUndo, 
   canRedo,
   onClear,
-  saveStatus,   
+  saveStatus,
 }) {
   const { playSound } = useSound();
   const [showModal, setShowModal] = useState(false);
@@ -53,7 +53,7 @@ export function UndoRedoButtons({
           title="Undo (Ctrl+Z)"
         >
           <span className="undo-redo-icon">↩</span>
-          {/* <span className="undo-redo-label">UNDO</span> */}
+          <span className="undo-redo-label">UNDO</span>
         </button>
         
         <button
@@ -63,7 +63,7 @@ export function UndoRedoButtons({
           title="Redo (Ctrl+Y)"
         >
           <span className="undo-redo-icon">↪</span>
-          {/* <span className="undo-redo-label">REDO</span> */}
+          <span className="undo-redo-label">REDO</span>
         </button>
 
         <div className="undo-redo-divider"></div>
@@ -77,7 +77,7 @@ export function UndoRedoButtons({
           <span className="undo-redo-label">CLEAR</span>
         </button>
 
-        {/* ===== SAVE STATUS INDICATOR ===== */}
+        {/* Save Status - hidden on mobile */}
         <div className="save-status">
           <span className="save-status-icon">💾</span>
           <span className="save-status-text">{saveStatus}</span>
