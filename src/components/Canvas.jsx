@@ -17,7 +17,8 @@ export function Canvas({
   startStroke,
   endStroke,
   eyedropper,
-  onColorUsed,  // ← This is the function passed from parent
+  onColorUsed,
+  previewMode,
 }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -40,15 +41,20 @@ export function Canvas({
 
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
+        // Draw pixel
         ctx.fillStyle = grid[row][col];
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
 
-        ctx.strokeStyle = '#333333';
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        // Only draw grid lines if NOT in preview mode
+        if (!previewMode) {
+          ctx.strokeStyle = '#333333';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
       }
     }
 
+    // Hover preview - only show in preview mode if not drawing
     if (hoveredCell && !isDrawing) {
       const { row, col } = hoveredCell;
       let previewColor = currentTool === 'eraser' ? '#ffffff' : currentColor;
@@ -62,7 +68,7 @@ export function Canvas({
       ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       ctx.globalAlpha = 1.0;
     }
-  }, [grid, gridSize, cellSize, currentColor, currentTool, isDrawing, hoveredCell]);
+  }, [grid, gridSize, cellSize, currentColor, currentTool, isDrawing, hoveredCell, previewMode]);
 
   // Get cell from mouse position
   const getCellFromMouse = (e) => {

@@ -70,6 +70,15 @@ export function usePixelArt(initialSize = 16) {
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef(null);
 
+  const [previewMode, setPreviewMode] = useState(false);
+
+
+  //  toggle preview mode
+const togglePreviewMode = useCallback(() => {
+  setPreviewMode(prev => !prev);
+}, []);
+
+
   // ===== COLOR HISTORY =====
   const getInitialHistory = () => {
     try {
@@ -393,5 +402,8 @@ export function usePixelArt(initialSize = 16) {
     setCurrentColor,     
     onColorUsed: useColor,            
     addToHistory,
+    previewMode,
+    setPreviewMode,
+    togglePreviewMode,
   };
 }
